@@ -1,0 +1,42 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block title %}Marquer présence{% endblock %}
+
+{% block body %}
+<h2>Marquer présence</h2>
+<p>
+  <strong>Groupe:</strong> {{ group.name }} |
+  <strong>Matière:</strong> {{ schedule.subject }} |
+  <strong>Horaire:</strong> {{ schedule.startTime|date('H:i') }} - {{ schedule.endTime|date('H:i') }} |
+  <strong>Date:</strong> {{ today|date('d/m/Y') }}
+</p>
+
+<form method="post">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Étudiant</th>
+        <th>Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for student in students %}
+      <tr>
+        <td>{{ student.firstName }} {{ student.lastName }}</td>
+        <td>
+          <select class="form-select" name="attendance[{{ student.id }}]">
+            <option value="present">Présent</option>
+            <option value="absent">Absent</option>
+            <option value="late">Retard</option>
+            <option value="excused">Excusé</option>
+          </select>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <button class="btn btn-success">Enregistrer</button>
+  <a class="btn btn-secondary" href="{{ path('teacher_attendance_today') }}">Retour</a>
+</form>
+{% endblock %}

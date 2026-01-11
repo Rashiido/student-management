@@ -1,0 +1,275 @@
+{# templates/teacher/attendance/mark.html.twig #}
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    <h1 style="font-size: 2rem; font-weight: 700;">
+        <i class="fas fa-calendar-check"></i> Marquer les présences
+    </h1>
+    <p style="color: #64748b; margin-top: 0.5rem;">
+        Sélectionnez le groupe, la matière, les horaires et la date pour marquer les présences
+    </p>
+{% endblock %}
+
+{% block main %}
+    <style>
+        /* ... KEEP ALL YOUR EXISTING STYLES ... */
+        /* They're already great for teachers! */
+    </style>
+
+    <div class="attendance-container">
+        <!-- Filters Section - SIMPLIFIED FOR TEACHERS -->
+        <div class="filter-section">
+            <div class="filter-grid">
+                <!-- REMOVED School Filter (teachers only see their school) -->
+
+                <!-- Group Filter (Only teacher's groups) -->
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-users"></i>
+                        Groupe
+                    </label>
+                    <select id="groupSelect" class="filter-select" onchange="enableSubjectSelect()">
+                        <option value="">-- Sélectionner un groupe --</option>
+                        <!-- Groups will be loaded from teacher's API -->
+                    </select>
+                </div>
+
+                <!-- Subject Filter -->
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-book"></i>
+                        Matière
+                    </label>
+                    <select id="subjectSelect" class="filter-select" disabled onchange="updateLoadButton()">
+                        <option value="">-- Sélectionner une matière --</option>
+                        <option value="Math">Mathématiques</option>
+                        <option value="Français">Français</option>
+                    </select>
+                </div>
+
+                <!-- Time Selection -->
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-clock"></i>
+                        Horaire
+                    </label>
+                    <div class="time-selection">
+                        <select id="startTimeSelect" class="time-select" onchange="updateLoadButton()">
+                            <option value="">Heure début</option>
+                            <!-- Times will be populated by JavaScript -->
+                        </select>
+                        <div class="time-separator">-</div>
+                        <select id="endTimeSelect" class="time-select" onchange="updateLoadButton()">
+                            <option value="">Heure fin</option>
+                            <!-- Times will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Date Picker -->
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-calendar"></i>
+                        Date du cours
+                    </label>
+                    <input type="date" id="dateSelect" class="date-picker" value="{{ 'now'|date('Y-m-d') }}" onchange="updateLoadButton()">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="filter-actions">
+                <button class="btn btn-secondary" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i>
+                    Réinitialiser
+                </button>
+                <button id="loadBtn" class="btn btn-primary" disabled onclick="loadStudentsForAttendance()">
+                    <i class="fas fa-check"></i>
+                    Charger les étudiants
+                </button>
+            </div>
+        </div>
+
+        <!-- ... REST OF THE TEMPLATE REMAINS THE SAME ... -->
+    </div>
+
+    <script>
+        let currentGroupId = null;
+        let studentsData = {};
+        let availableTimes = [];
+        let teacherSchoolId = null; // Will be set from server
+
+        // Initialize - load teacher's groups
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTimeDropdowns();
+            loadTeacherGroups();
+        });
+
+        // Load teacher's groups only
+        function loadTeacherGroups() {
+            fetch('{{ path("teacher_api_my_groups") }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.schoolId) {
+                        teacherSchoolId = data.schoolId;
+                    }
+
+                    const groupSelect = document.getElementById('groupSelect');
+                    groupSelect.innerHTML = '<option value="">-- Sélectionner un groupe --</option>';
+
+                    if (data.groups && data.groups.length > 0) {
+                        data.groups.forEach(group => {
+                            const option = document.createElement('option');
+                            option.value = group.id;
+                            option.textContent = group.name;
+                            groupSelect.appendChild(option);
+                        });
+                    } else {
+                        groupSelect.innerHTML = '<option value="">Aucun groupe assigné</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading teacher groups:', error);
+                    alert('Erreur lors du chargement des groupes');
+                });
+        }
+
+        // Load students for attendance - MODIFIED FOR TEACHER
+        function loadStudentsForAttendance() {
+            const groupId = document.getElementById('groupSelect').value;
+            const subject = document.getElementById('subjectSelect').value;
+            const startTime = document.getElementById('startTimeSelect').value;
+            const endTime = document.getElementById('endTimeSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (!groupId || !subject || !startTime || !endTime || !date) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            // Show loading state
+            const studentsList = document.getElementById('studentsList');
+            studentsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Chargement des étudiants...</p>
+            </div>
+        `;
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('attendanceSection').classList.add('active');
+
+            // Update header
+            document.getElementById('groupName').textContent = document.getElementById('groupSelect').selectedOptions[0].text;
+            document.getElementById('subjectName').textContent = subject;
+            document.getElementById('displayStartTime').textContent = startTime;
+            document.getElementById('displayEndTime').textContent = endTime;
+            document.getElementById('selectedDate').textContent = new Date(date).toLocaleDateString('fr-FR');
+
+            // Fetch students - TEACHER SPECIFIC ENDPOINT
+            fetch(`/teacher/api/students-by-group/${groupId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    displayAttendance(data);
+                })
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                    alert('Erreur lors du chargement des étudiants: ' + error.message);
+                    studentsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erreur: ${error.message}</p>
+                    </div>
+                `;
+                });
+        }
+
+        // Save attendance - MODIFIED FOR TEACHER
+        function saveAttendance() {
+            const groupId = document.getElementById('groupSelect').value;
+            const subject = document.getElementById('subjectSelect').value;
+            const startTime = document.getElementById('startTimeSelect').value;
+            const endTime = document.getElementById('endTimeSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (!groupId || !subject || !startTime || !endTime || !date) {
+                alert('Veuillez sélectionner tous les critères');
+                return;
+            }
+
+            const attendanceData = {};
+            Object.keys(studentsData).forEach(studentId => {
+                attendanceData[studentId] = studentsData[studentId].status;
+            });
+
+            // TEACHER SPECIFIC ENDPOINT
+            fetch('/teacher/api/save-attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    groupId: groupId,
+                    subject: subject,
+                    startTime: startTime,
+                    endTime: endTime,
+                    date: date,
+                    attendance: attendanceData
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Présences enregistrées avec succès!');
+                        // Optional: refresh or show success message
+                    } else {
+                        alert('❌ Erreur: ' + (data.error || 'Erreur inconnue'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Erreur lors de l\'enregistrement: ' + error.message);
+                });
+        }
+
+        // ... KEEP ALL OTHER HELPER FUNCTIONS (generateTimeOptions, initializeTimeDropdowns, etc.)
+        // ... KEEP displayAttendance, setStudentStatus, markAll, updateCounts functions
+        // ... They remain the same
+
+        // Reset filters - SIMPLIFIED
+        function resetFilters() {
+            document.getElementById('groupSelect').value = '';
+            document.getElementById('subjectSelect').value = '';
+            document.getElementById('startTimeSelect').value = '';
+            document.getElementById('endTimeSelect').value = '';
+            document.getElementById('subjectSelect').disabled = true;
+            document.getElementById('loadBtn').disabled = true;
+            document.getElementById('attendanceSection').classList.remove('active');
+            document.getElementById('emptyState').style.display = 'block';
+
+            // Reset counts
+            document.getElementById('presentCount').textContent = '0';
+            document.getElementById('absentCount').textContent = '0';
+            document.getElementById('lateCount').textContent = '0';
+            document.getElementById('excusedCount').textContent = '0';
+
+            // Reset display
+            document.getElementById('groupName').textContent = '';
+            document.getElementById('subjectName').textContent = '';
+            document.getElementById('displayStartTime').textContent = '';
+            document.getElementById('displayEndTime').textContent = '';
+            document.getElementById('selectedDate').textContent = '';
+            document.getElementById('studentCount').textContent = '0';
+
+            studentsData = {};
+            currentGroupId = null;
+        }
+    </script>
+{% endblock %}

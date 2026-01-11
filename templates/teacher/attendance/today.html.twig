@@ -1,0 +1,37 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block title %}Présences - Aujourd'hui{% endblock %}
+
+{% block body %}
+<h2>Présences – {{ today|date('d/m/Y') }}</h2>
+
+{% if schedules|length == 0 %}
+  <p>Aucun horaire aujourd’hui.</p>
+{% else %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Groupe</th>
+        <th>Matière</th>
+        <th>Heure</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for sc in schedules %}
+      <tr>
+        <td>{{ sc.studentGroup.name }}</td>
+        <td>{{ sc.subject }}</td>
+        <td>{{ sc.startTime|date('H:i') }} - {{ sc.endTime|date('H:i') }}</td>
+        <td>
+          <a class="btn btn-primary"
+             href="{{ path('teacher_attendance_mark_schedule', {id: sc.id}) }}">
+            Marquer
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endblock %}

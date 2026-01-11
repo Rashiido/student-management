@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Absences{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Absence List</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Group</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for absence in absences %}
+            <tr>
+                <td>{{ absence.student.firstName }} {{ absence.student.lastName }}</td>
+                <td>{{ absence.date|date('Y-m-d') }}</td>
+                <td>{{ absence.status }}</td>
+                <td>{{ absence.studentGroup.name }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">No absences found.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

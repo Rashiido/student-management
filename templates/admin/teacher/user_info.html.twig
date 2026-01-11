@@ -1,0 +1,21 @@
+{# templates/admin/teacher/user_info.html.twig #}
+{% if field.value is not empty %}
+    <div class="user-info">
+        <strong>Nom d'utilisateur:</strong> {{ field.value.username }}<br>
+
+        {% if app.session.flashbag.has('info') %}
+            {% for message in app.flashes('info') %}
+                {% if 'Mot de passe généré:' in message %}
+                    <strong>Mot de passe généré:</strong>
+                    <code>{{ message|replace({'Mot de passe généré: ': ''}) }}</code><br>
+                    <small class="text-warning">⚠️ Notez ce mot de passe! Il ne sera plus affiché après.</small>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <strong>Mot de passe:</strong> ********<br>
+            <small>Le mot de passe est haché et ne peut être affiché.</small>
+        {% endif %}
+    </div>
+{% else %}
+    <span class="text-muted">Aucun compte utilisateur associé</span>
+{% endif %}

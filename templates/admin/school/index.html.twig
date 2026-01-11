@@ -1,0 +1,529 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="font-size: 2rem; font-weight: 700; margin: 0;">
+            <i class="fas fa-school"></i> Écoles
+        </h1>
+        <a href="{{ ea_url()
+            .setController('App\\Controller\\Admin\\SchoolCrudController')
+            .setAction('new') }}"
+           style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
+            <i class="fas fa-plus"></i> Nouvelle école
+        </a>
+    </div>
+{% endblock %}
+
+{% block main %}
+    <style>
+        .schools-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .school-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .school-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .school-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .school-header:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #6a3f91 100%);
+        }
+
+        .school-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .school-meta {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .school-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .expand-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .school-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .school-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .school-card.expanded .school-content {
+            max-height: 10000px;
+        }
+
+        .school-body {
+            padding: 2rem;
+            background: #f8fafc;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid;
+        }
+
+        .stat-box.blue { border-left-color: #3b82f6; }
+        .stat-box.green { border-left-color: #10b981; }
+        .stat-box.purple { border-left-color: #8b5cf6; }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-box.blue .stat-number { color: #3b82f6; }
+        .stat-box.green .stat-number { color: #10b981; }
+        .stat-box.purple .stat-number { color: #8b5cf6; }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .teachers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .teacher-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .teacher-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .teacher-info {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .teacher-info div {
+            margin: 0.25rem 0;
+        }
+
+        .groups-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .group-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .group-header {
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .group-header:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+
+        .group-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .group-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .group-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .group-card.expanded .group-content {
+            max-height: 5000px;
+        }
+
+        .group-body {
+            padding: 1.5rem;
+            background: #f1f5f9;
+        }
+
+        .students-list {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .student-item:hover {
+            background: #f8fafc;
+        }
+
+        .student-item:last-child {
+            border-bottom: none;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .student-level {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+    </style>
+
+    <div class="schools-container">
+        {% if entities is empty %}
+            <div class="empty-state">
+                <i class="fas fa-school" style="font-size: 4rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                <p>Aucune école enregistrée</p>
+            </div>
+        {% else %}
+            {% for entity in entities %}
+                {% set school = entity.instance %}
+                <div class="school-card" id="school-{{ school.id }}">
+                    <div class="school-header" onclick="toggleSchool({{ school.id }})">
+                        <div class="school-title">
+                            <i class="fas fa-school"></i>
+                            {{ school.name }}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 2rem;">
+                            <div class="school-meta">
+                                <div class="school-meta-item">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    <span>{{ school.teachers|length }} enseignants</span>
+                                </div>
+                                <div class="school-meta-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ school.studentGroups|length }} groupes</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-down expand-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="school-content">
+                        <div class="school-body">
+                            <!-- Statistics -->
+                            <div class="stats-row">
+                                <div class="stat-box blue">
+                                    <div class="stat-number">{{ school.teachers|length }}</div>
+                                    <div class="stat-label">Enseignants</div>
+                                </div>
+                                <div class="stat-box green">
+                                    <div class="stat-number">{{ school.studentGroups|length }}</div>
+                                    <div class="stat-label">Groupes</div>
+                                </div>
+                                <div class="stat-box purple">
+                                    <div class="stat-number">
+                                        {% set totalStudents = 0 %}
+                                        {% for group in school.studentGroups %}
+                                            {% set totalStudents = totalStudents + group.students|length %}
+                                        {% endfor %}
+                                        {{ totalStudents }}
+                                    </div>
+                                    <div class="stat-label">Étudiants</div>
+                                </div>
+                            </div>
+
+                            <!-- Teachers Section -->
+                            <div class="section">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <div class="section-title" style="margin-bottom: 0;">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                        Enseignants
+                                    </div>
+                                    <a href="{{ ea_url()
+                                        .setController('App\\Controller\\Admin\\TeacherCrudController')
+                                        .setAction('new') }}"
+                                       class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Nouvel enseignant
+                                    </a>
+                                </div>
+                                {% if school.teachers is empty %}
+                                    <div class="empty-state">
+                                        Aucun enseignant assigné
+                                    </div>
+                                {% else %}
+                                    <div class="teachers-grid">
+                                        {% for teacher in school.teachers %}
+                                            <div class="teacher-card">
+                                                <div class="teacher-name">
+                                                    <i class="fas fa-user"></i>
+                                                    {{ teacher.firstName }} {{ teacher.lastName }}
+                                                </div>
+                                                <div class="teacher-info">
+                                                    {% if teacher.phone %}
+                                                        <div><i class="fas fa-phone"></i> {{ teacher.phone }}</div>
+                                                    {% endif %}
+                                                    <div><i class="fas fa-school"></i> {{ school.name }}</div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Groups Section -->
+                            <div class="section">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <div class="section-title" style="margin-bottom: 0;">
+                                        <i class="fas fa-users"></i>
+                                        Groupes d'étudiants
+                                    </div>
+                                    <a href="{{ ea_url()
+                                        .setController('App\\Controller\\Admin\\StudentGroupCrudController')
+                                        .setAction('new') }}"
+                                       class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Nouveau groupe
+                                    </a>
+                                </div>
+                                {% if school.studentGroups is empty %}
+                                    <div class="empty-state">
+                                        Aucun groupe créé
+                                    </div>
+                                {% else %}
+                                    <div class="groups-container">
+                                        {% for group in school.studentGroups %}
+                                            <div class="group-card" id="group-{{ group.id }}">
+                                                <div class="group-header" onclick="toggleGroup({{ group.id }})">
+                                                    <div class="group-name">
+                                                        <i class="fas fa-users"></i>
+                                                        {{ group.name }}
+                                                    </div>
+                                                    <div style="display: flex; align-items: center; gap: 2rem;">
+                                                        <div class="group-stats">
+                                                        <span>
+                                                            <i class="fas fa-user-graduate"></i>
+                                                            {{ group.students|length }} étudiants
+                                                        </span>
+                                                        </div>
+                                                        <i class="fas fa-chevron-down expand-icon"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="group-content">
+                                                    <div class="group-body">
+                                                        <!-- Students List -->
+                                                        <div class="students-list">
+                                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                                                <h4 style="margin: 0; color: #1e293b;">
+                                                                    <i class="fas fa-user-graduate"></i>
+                                                                    Liste des étudiants
+                                                                </h4>
+                                                                <a href="{{ ea_url()
+                                                                    .setController('App\\Controller\\Admin\\StudentCrudController')
+                                                                    .setAction('new') }}"
+                                                                   class="btn btn-secondary">
+                                                                    <i class="fas fa-plus"></i> Ajouter
+                                                                </a>
+                                                            </div>
+                                                            {% if group.students is empty %}
+                                                                <div class="empty-state">
+                                                                    Aucun étudiant dans ce groupe
+                                                                </div>
+                                                            {% else %}
+                                                                {% for student in group.students %}
+                                                                    <div class="student-item">
+                                                                        <div class="student-avatar">
+                                                                            {{ student.firstName|first }}{{ student.lastName|first }}
+                                                                        </div>
+                                                                        <div class="student-info">
+                                                                            <div class="student-name">
+                                                                                {{ student.firstName }} {{ student.lastName }}
+                                                                            </div>
+                                                                            <div class="student-level">
+                                                                                {% if student.dateOfBirth %}
+                                                                                    Né(e) le {{ student.dateOfBirth|date('d/m/Y') }}
+                                                                                {% endif %}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleSchool(schoolId) {
+            const card = document.getElementById('school-' + schoolId);
+            card.classList.toggle('expanded');
+        }
+
+        function toggleGroup(groupId) {
+            const card = document.getElementById('group-' + groupId);
+            card.classList.toggle('expanded');
+            event.stopPropagation();
+        }
+    </script>
+{% endblock %}

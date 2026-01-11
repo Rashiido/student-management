@@ -1,0 +1,467 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Cairo", "Inter", sans-serif;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            min-height: 100vh;
+            display: flex;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .login-left {
+            flex: 1;
+            background: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-left::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .login-left::after {
+            content: '';
+            position: absolute;
+            bottom: -15%;
+            right: -15%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .welcome-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            line-height: 1.3;
+        }
+
+        .welcome-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .welcome-illustration {
+            margin-top: 2rem;
+            max-width: 280px;
+            width: 100%;
+        }
+
+        .login-right {
+            flex: 1;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .logos-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 2rem;
+            flex-shrink: 0;
+        }
+
+        .logos-left {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .logo-maroc {
+            height: 100px;
+        }
+
+        .logo-maroc img {
+            max-height: 100%;
+            max-width: 200px;
+            object-fit: contain;
+        }
+
+        .logo-indh {
+            height: 50px;
+        }
+
+        .logo-indh img {
+            max-height: 100%;
+            max-width: 200px;
+            object-fit: contain;
+        }
+
+        .login-form-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 450px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .login-header-text {
+            margin-bottom: 2rem;
+        }
+
+        .login-title {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.4rem;
+        }
+
+        .login-subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 1px solid #fca5a5;
+            border-radius: 12px;
+            padding: 0.9rem 1.1rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .alert-icon {
+            color: #dc2626;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .alert-message {
+            color: #991b1b;
+            font-size: 0.88rem;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.88rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.05rem;
+            pointer-events: none;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1.1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 0.4rem;
+        }
+
+        .toggle-password:hover {
+            color: #3b82f6;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.85rem 2.8rem 0.85rem 2.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.95rem;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .login-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            padding-top: 1.2rem;
+            border-top: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .login-footer-text {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 1024px) {
+            .login-left {
+                display: none;
+            }
+
+            .login-right {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .login-right {
+                padding: 1.5rem 1.2rem;
+            }
+
+            .logos-header {
+                flex-direction: row;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .logos-left {
+                gap: 1rem;
+            }
+
+            .logo-maroc {
+                height: 50px;
+            }
+
+            .logo-maroc img {
+                max-width: 130px;
+            }
+
+            .logo-indh {
+                height: 40px;
+            }
+
+            .logo-indh img {
+                max-width: 110px;
+            }
+
+            .login-title {
+                font-size: 1.6rem;
+            }
+
+            .login-subtitle {
+                font-size: 0.88rem;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+
+    <div class="login-wrapper">
+        <!-- Left Side - Welcome Section -->
+        <div class="login-left">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Bienvenue dans votre espace enseignant</h1>
+                <p class="welcome-description">
+                    Plateforme dédiée aux enseignants du programme de soutien scolaire. Gérez facilement les présences des élèves aux cours de renforcement
+                </p>
+                <div style="background: ; padding: 1.5rem; border-radius: 20px; margin-top: 2rem; max-width: 280px; width: 100%;">
+                    <img src="{{ asset('image/logo.png') }}" alt="Fondation Omar Ibn Abdelaziz" style="max-width: 150%; height: auto;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="login-right">
+            <div class="logos-header">
+                <div class="logos-left">
+                    <div class="logo-maroc">
+                        <img src="{{ asset('image/logo-maroc.png') }}" alt="Royaume du Maroc">
+                    </div>
+                    <div class="logo-indh">
+                        <img src="{{ asset('image/logo-indh.png') }}" alt="INDH">
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-form-container">
+                <div class="login-header-text">
+                    <h1 class="login-title">Connexion</h1>
+                    <p class="login-subtitle">Système de Gestion du Soutien Scolaire</p>
+                </div>
+
+                {% if error %}
+                    <div class="alert-error">
+                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+                        <div class="alert-message">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-person"></i>
+                            Nom d'utilisateur
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-person-fill input-icon"></i>
+                            <input
+                                type="text"
+                                name="_username"
+                                value="{{ last_username }}"
+                                required
+                                autofocus
+                                class="form-input"
+                                placeholder="Entrez votre nom d'utilisateur"
+                                autocomplete="username"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-lock"></i>
+                            Mot de passe
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-lock-fill input-icon"></i>
+                            <input
+                                type="password"
+                                name="_password"
+                                id="password-input"
+                                required
+                                class="form-input"
+                                placeholder="Entrez votre mot de passe"
+                                autocomplete="current-password"
+                            >
+                            <button type="button" class="toggle-password" onclick="togglePassword()">
+                                <i class="bi bi-eye" id="toggle-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <button type="submit" class="btn-login">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        Se Connecter
+                    </button>
+                </form>
+
+                <div class="login-footer">
+                    <p class="login-footer-text">
+                        © 2026 Système de Gestion du Soutien Scolaire - Royaume du Maroc
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password-input');
+            const toggleIcon = document.getElementById('toggle-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,392 @@
+{% extends 'teacher/base.html.twig' %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        .add-student-wrapper {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .add-student-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-student-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .add-student-header {
+            position: relative;
+            z-index: 1;
+        }
+
+        .add-student-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .add-student-subtitle {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 0.5rem;
+        }
+
+        .form-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label .required {
+            color: #ef4444;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.85rem 1.15rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.15rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .input-icon-wrapper .form-control,
+        .input-icon-wrapper .form-select {
+            padding-left: 3rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        .btn-submit {
+            padding: 0.9rem 2rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-cancel {
+            padding: 0.9rem 2rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .form-help-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .info-box-icon {
+            font-size: 1.5rem;
+            color: #3b82f6;
+            flex-shrink: 0;
+        }
+
+        .info-box-content {
+            flex: 1;
+        }
+
+        .info-box-title {
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .info-box-text {
+            font-size: 0.9rem;
+            color: #1e40af;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .add-student-wrapper {
+                padding: 0;
+            }
+
+            .add-student-hero {
+                padding: 1.75rem;
+            }
+
+            .add-student-title {
+                font-size: 2rem;
+            }
+
+            .form-card {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn-submit,
+            .btn-cancel {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="add-student-wrapper">
+        <div class="add-student-hero">
+            <div class="add-student-header">
+                <h1 class="add-student-title">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Ajouter un Élève
+                </h1>
+                <p class="add-student-subtitle">Enregistrez un nouvel élève dans votre classe</p>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="info-box">
+                <div class="info-box-icon">
+                    <i class="bi bi-info-circle-fill"></i>
+                </div>
+                <div class="info-box-content">
+                    <div class="info-box-title">Information</div>
+                    <p class="info-box-text">Tous les champs marqués d'un astérisque (<span style="color: #ef4444;">*</span>) sont obligatoires</p>
+                </div>
+            </div>
+
+            <form method="post" action="{{ path('teacher_student_add') }}">
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="bi bi-person-badge"></i>
+                        Informations Personnelles
+                    </h3>
+
+                    <div class="mb-4">
+                        <label for="firstName" class="form-label">
+                            <i class="bi bi-person"></i>
+                            Prénom
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-person input-icon"></i>
+                            <input 
+                                type="text" 
+                                id="firstName" 
+                                name="firstName" 
+                                class="form-control" 
+                                placeholder="Ex: Mohammed"
+                                required
+                                autocomplete="given-name">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="lastName" class="form-label">
+                            <i class="bi bi-person-fill"></i>
+                            Nom de Famille
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-person-fill input-icon"></i>
+                            <input 
+                                type="text" 
+                                id="lastName" 
+                                name="lastName" 
+                                class="form-control" 
+                                placeholder="Ex: Alami"
+                                required
+                                autocomplete="family-name">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="bi bi-book"></i>
+                        Informations Scolaires
+                    </h3>
+
+                    <div class="mb-4">
+                        <label for="niveauScolaire" class="form-label">
+                            <i class="bi bi-mortarboard"></i>
+                            Niveau Scolaire
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-mortarboard input-icon"></i>
+                            <input 
+                                type="text" 
+                                id="niveauScolaire" 
+                                name="niveauScolaire" 
+                                class="form-control" 
+                                placeholder="Ex: 6ème année, Bac, Terminale..."
+                                required>
+                        </div>
+                        <div class="form-help-text">
+                            <i class="bi bi-info-circle"></i>
+                            Indiquez le niveau ou la classe de l'élève
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="group" class="form-label">
+                            <i class="bi bi-journal-bookmark"></i>
+                            Classe Assignée
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-journal-bookmark input-icon"></i>
+                            <select name="group" id="group" class="form-select" required>
+                                <option value="">-- Sélectionner une classe --</option>
+                                {% for group in groups %}
+                                    <option value="{{ group.id }}">{{ group.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-help-text">
+                            <i class="bi bi-info-circle"></i>
+                            Choisissez la classe dans laquelle cet élève sera inscrit
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ path('teacher_my_students') }}" class="btn-cancel">
+                        <i class="bi bi-x-circle"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Ajouter l'Élève
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

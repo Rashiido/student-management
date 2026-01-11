@@ -1,0 +1,31 @@
+{% extends 'teacher/base.html.twig' %}
+
+{% block body %}
+    <div class="teacher-page-header">
+        <h1 class="teacher-page-title">Modifier la classe: {{ group.name }}</h1>
+    </div>
+
+    <div class="card teacher-card p-3">
+
+        <form method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nom de la classe *</label>
+                <input type="text" name="name" id="name" class="form-control" value="{{ group.name }}" required placeholder="Ex: 6eme A, CM1 B, etc.">
+                <small class="text-muted">Le nom de la classe (ex: 6eme A, CM1 B, etc.)</small>
+            </div>
+
+            <div class="mb-3 p-3 bg-light rounded">
+                <strong>Informations:</strong>
+                <ul class="mb-0 text-muted">
+                    <li>Ecole: {{ group.school.name }}</li>
+                    <li>Nombre d eleves: {{ group.students|length }}</li>
+                </ul>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+                <a href="{{ path('teacher_my_groups') }}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

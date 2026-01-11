@@ -1,0 +1,532 @@
+{% extends 'teacher/base.html.twig' %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        .history-wrapper {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .history-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .history-header {
+            position: relative;
+            z-index: 1;
+        }
+
+        .history-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .history-subtitle {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 0.5rem;
+        }
+
+        .filter-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+        }
+
+        .filter-card h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-select, .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .btn-filter {
+            padding: 0.85rem 1.75rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            cursor: pointer;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .history-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+        }
+
+        .history-card-header {
+            padding: 2rem;
+            border-bottom: 2px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .history-card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .record-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1e40af;
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: 1px solid #bfdbfe;
+        }
+
+        .history-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .history-table thead {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .history-table thead th {
+            padding: 1.25rem 1.5rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .history-table tbody tr {
+            transition: all 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .history-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .history-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .history-table tbody td {
+            padding: 1.25rem 1.5rem;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f8fafc;
+            color: #475569;
+            border-radius: 10px;
+            padding: 0.5rem 0.85rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .class-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            color: #7c3aed;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid #e9d5ff;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 1px solid;
+        }
+
+        .status-badge.present {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-color: #86efac;
+        }
+
+        .status-badge.absent {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b45309;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-box-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .stat-box-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .history-wrapper {
+                padding: 0;
+            }
+
+            .history-hero {
+                padding: 1.75rem;
+            }
+
+            .history-title {
+                font-size: 2rem;
+            }
+
+            .filter-card .row {
+                gap: 0;
+            }
+
+            .history-table thead {
+                display: none;
+            }
+
+            .history-table tbody tr {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.5rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                margin-bottom: 1rem;
+                background: #ffffff;
+            }
+
+            .history-table tbody td {
+                padding: 0;
+                border: none;
+            }
+
+            .history-table tbody td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: #64748b;
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                letter-spacing: 0.05em;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+
+    <div class="history-wrapper">
+        <div class="history-hero">
+            <div class="history-header">
+                <h1 class="history-title">
+                    <i class="bi bi-clock-history"></i>
+                    Historique des Présences
+                </h1>
+                <p class="history-subtitle">Consultez et analysez les présences de vos élèves</p>
+            </div>
+        </div>
+
+        <div class="filter-card">
+            <h3>
+                <i class="bi bi-funnel-fill"></i>
+                Filtres de Recherche
+            </h3>
+            <form method="get" action="{{ path('teacher_attendance_history') }}">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="group" class="form-label">
+                            <i class="bi bi-journal-bookmark"></i>
+                            Classe
+                        </label>
+                        <select name="group" id="group" class="form-select">
+                            <option value="">Toutes les classes</option>
+                            {% for group in groups %}
+                                <option value="{{ group.id }}" {{ selectedGroupId == group.id ? 'selected' : '' }}>
+                                    {{ group.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="start_date" class="form-label">
+                            <i class="bi bi-calendar-event"></i>
+                            Date Début
+                        </label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ startDate }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="end_date" class="form-label">
+                            <i class="bi bi-calendar-check"></i>
+                            Date Fin
+                        </label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ endDate }}">
+                    </div>
+                </div>
+                <button type="submit" class="btn-filter">
+                    <i class="bi bi-search"></i>
+                    Appliquer les Filtres
+                </button>
+            </form>
+        </div>
+
+        <div class="history-card">
+            <div class="history-card-header">
+                <h3 class="history-card-title">
+                    <i class="bi bi-list-ul"></i>
+                    Enregistrements
+                </h3>
+                {% if attendances|length > 0 %}
+                    <span class="record-count-badge">
+                        <i class="bi bi-file-text"></i>
+                        {{ attendances|length }} enregistrement{{ attendances|length > 1 ? 's' : '' }}
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if attendances|length > 0 %}
+                <div class="history-table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Élève</th>
+                                <th>Classe</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attendance in attendances %}
+                                <tr>
+                                    <td data-label="Date">
+                                        <span class="date-badge">
+                                            <i class="bi bi-calendar3"></i>
+                                            {{ attendance.date|date('d/m/Y') }}
+                                        </span>
+                                    </td>
+                                    <td data-label="Élève">
+                                        <div class="student-info">
+                                            <div class="student-avatar">
+                                                {{ attendance.student.firstName|first|upper }}{{ attendance.student.lastName|first|upper }}
+                                            </div>
+                                            <span class="student-name">
+                                                {{ attendance.student.firstName }} {{ attendance.student.lastName }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td data-label="Classe">
+                                        <span class="class-badge">
+                                            <i class="bi bi-journal-bookmark-fill"></i>
+                                            {{ attendance.studentGroup.name }}
+                                        </span>
+                                    </td>
+                                    <td data-label="Statut">
+                                        {% if attendance.status == 'present' %}
+                                            <span class="status-badge present">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Présent
+                                            </span>
+                                        {% elseif attendance.status == 'absent' %}
+                                            <span class="status-badge absent">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                                Absent
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge">
+                                                <i class="bi bi-question-circle-fill"></i>
+                                                {{ attendance.status }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-inbox" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h2 class="empty-state-title">Aucun Enregistrement Trouvé</h2>
+                    <p class="empty-state-text">Aucun enregistrement ne correspond aux filtres sélectionnés. Essayez de modifier vos critères de recherche.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

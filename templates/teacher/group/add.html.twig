@@ -2,20 +2,23 @@
 
 {% block body %}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
         .add-class-wrapper {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             max-width: 900px;
             margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
         }
 
         .add-class-hero {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            border-radius: 24px;
-            padding: 2.5rem;
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -25,9 +28,20 @@
             position: absolute;
             top: -50%;
             right: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .add-class-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
             border-radius: 50%;
         }
 
@@ -37,34 +51,43 @@
         }
 
         .add-class-title {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 800;
             color: #ffffff;
-            margin: 0;
+            margin: 0 0 0.25rem 0;
             letter-spacing: -0.02em;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .add-class-subtitle {
-            font-size: 1.05rem;
-            color: rgba(255, 255, 255, 0.85);
-            margin-top: 0.5rem;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
         }
 
         .form-card {
             background: #ffffff;
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-card-body {
+            padding: 2rem;
         }
 
         .form-label {
             font-weight: 600;
             color: #475569;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 0.5rem;
@@ -81,14 +104,15 @@
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             padding: 0.85rem 1.15rem;
-            font-size: 1.05rem;
+            font-size: 1rem;
             transition: all 0.2s;
             background: #ffffff;
+            width: 100%;
         }
 
         .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
             outline: none;
         }
 
@@ -135,7 +159,7 @@
 
         .info-box-icon {
             font-size: 1.5rem;
-            color: #3b82f6;
+            color: #06b6d4;
             flex-shrink: 0;
         }
 
@@ -145,14 +169,14 @@
 
         .info-box-title {
             font-weight: 700;
-            color: #1e40af;
+            color: #0284C7;
             margin-bottom: 0.25rem;
             font-size: 0.95rem;
         }
 
         .info-box-text {
             font-size: 0.9rem;
-            color: #1e40af;
+            color: #0284C7;
             margin: 0;
         }
 
@@ -194,21 +218,21 @@
             display: flex;
             gap: 1rem;
             justify-content: flex-end;
-            margin-top: 2.5rem;
+            margin-top: 2rem;
             padding-top: 2rem;
-            border-top: 2px solid #f1f5f9;
+            border-top: 2px solid #e2e8f0;
         }
 
         .btn-submit {
-            padding: 0.9rem 2rem;
+            padding: 0.85rem 2rem;
             border-radius: 12px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             color: #ffffff;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
             border: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -217,7 +241,8 @@
 
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #0891b2;
         }
 
         .btn-submit:active {
@@ -225,12 +250,12 @@
         }
 
         .btn-cancel {
-            padding: 0.9rem 2rem;
+            padding: 0.85rem 2rem;
             border-radius: 12px;
-            background: #f8fafc;
+            background: #f1f5f9;
             color: #475569;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.95rem;
             border: 2px solid #e2e8f0;
             transition: all 0.2s;
             text-decoration: none;
@@ -240,10 +265,10 @@
         }
 
         .btn-cancel:hover {
-            background: #f1f5f9;
+            background: #e2e8f0;
             border-color: #cbd5e1;
-            color: #1e293b;
-            transform: translateY(-1px);
+            color: #334155;
+            text-decoration: none;
         }
 
         .feature-list {
@@ -295,18 +320,18 @@
 
         @media (max-width: 768px) {
             .add-class-wrapper {
-                padding: 0;
+                padding: 1rem;
             }
 
             .add-class-hero {
-                padding: 1.75rem;
+                padding: 1.5rem;
             }
 
             .add-class-title {
-                font-size: 2rem;
+                font-size: 1.75rem;
             }
 
-            .form-card {
+            .form-card-body {
                 padding: 1.5rem;
             }
 
@@ -338,88 +363,90 @@
         </div>
 
         <div class="form-card">
-            <div class="info-box">
-                <div class="info-box-icon">
-                    <i class="bi bi-lightbulb-fill"></i>
+            <div class="form-card-body">
+                <div class="info-box">
+                    <div class="info-box-icon">
+                        <i class="bi bi-lightbulb-fill"></i>
+                    </div>
+                    <div class="info-box-content">
+                        <div class="info-box-title">Conseil</div>
+                        <p class="info-box-text">Utilisez un nom clair et descriptif pour identifier facilement votre classe</p>
+                    </div>
                 </div>
-                <div class="info-box-content">
-                    <div class="info-box-title">Conseil</div>
-                    <p class="info-box-text">Utilisez un nom clair et descriptif pour identifier facilement votre classe</p>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="feature-content">
+                            <div class="feature-title">Gérez vos élèves</div>
+                            <p class="feature-text">Ajoutez et organisez vos élèves</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+                        <div class="feature-content">
+                            <div class="feature-title">Suivez les présences</div>
+                            <p class="feature-text">Marquez les présences facilement</p>
+                        </div>
+                    </div>
                 </div>
+
+                <form method="post">
+                    <div class="mb-4">
+                        <label for="name" class="form-label">
+                            <i class="bi bi-journal-bookmark"></i>
+                            Nom de la Classe
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-journal-text input-icon"></i>
+                            <input 
+                                type="text" 
+                                name="name" 
+                                id="name" 
+                                class="form-control" 
+                                required 
+                                placeholder="Ex: 6ème A, CM1 B, Terminal S..."
+                                autocomplete="off"
+                                maxlength="100">
+                        </div>
+                        <div class="form-help-text">
+                            <i class="bi bi-info-circle"></i>
+                            Donnez un nom unique et reconnaissable à votre classe
+                        </div>
+                    </div>
+
+                    <div class="examples-box">
+                        <div class="examples-title">
+                            <i class="bi bi-lightbulb"></i>
+                            Exemples de noms de classe
+                        </div>
+                        <div class="examples-list">
+                            <span class="example-tag">6ème A</span>
+                            <span class="example-tag">CM1 B</span>
+                            <span class="example-tag">Terminal S</span>
+                            <span class="example-tag">Bac Science</span>
+                            <span class="example-tag">5ème Année</span>
+                            <span class="example-tag">Groupe Mathématiques</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="{{ path('teacher_my_groups') }}" class="btn-cancel">
+                            <i class="bi bi-x-circle"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn-submit">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Créer la Classe
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <div class="feature-list">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-                    <div class="feature-content">
-                        <div class="feature-title">Gérez vos élèves</div>
-                        <p class="feature-text">Ajoutez et organisez vos élèves</p>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="bi bi-clipboard-check"></i>
-                    </div>
-                    <div class="feature-content">
-                        <div class="feature-title">Suivez les présences</div>
-                        <p class="feature-text">Marquez les présences facilement</p>
-                    </div>
-                </div>
-            </div>
-
-            <form method="post">
-                <div class="mb-4">
-                    <label for="name" class="form-label">
-                        <i class="bi bi-journal-bookmark"></i>
-                        Nom de la Classe
-                        <span class="required">*</span>
-                    </label>
-                    <div class="input-icon-wrapper">
-                        <i class="bi bi-journal-text input-icon"></i>
-                        <input 
-                            type="text" 
-                            name="name" 
-                            id="name" 
-                            class="form-control" 
-                            required 
-                            placeholder="Ex: 6ème A, CM1 B, Terminal S..."
-                            autocomplete="off"
-                            maxlength="100">
-                    </div>
-                    <div class="form-help-text">
-                        <i class="bi bi-info-circle"></i>
-                        Donnez un nom unique et reconnaissable à votre classe
-                    </div>
-                </div>
-
-                <div class="examples-box">
-                    <div class="examples-title">
-                        <i class="bi bi-lightbulb"></i>
-                        Exemples de noms de classe
-                    </div>
-                    <div class="examples-list">
-                        <span class="example-tag">6ème A</span>
-                        <span class="example-tag">CM1 B</span>
-                        <span class="example-tag">Terminal S</span>
-                        <span class="example-tag">Bac Science</span>
-                        <span class="example-tag">5ème Année</span>
-                        <span class="example-tag">Groupe Mathématiques</span>
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <a href="{{ path('teacher_my_groups') }}" class="btn-cancel">
-                        <i class="bi bi-x-circle"></i>
-                        Annuler
-                    </a>
-                    <button type="submit" class="btn-submit">
-                        <i class="bi bi-check-circle-fill"></i>
-                        Créer la Classe
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 {% endblock %}

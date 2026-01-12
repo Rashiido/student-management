@@ -2,20 +2,23 @@
 
 {% block body %}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
         .history-wrapper {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             max-width: 1400px;
             margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
         }
 
         .history-hero {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            border-radius: 24px;
-            padding: 2.5rem;
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -25,9 +28,20 @@
             position: absolute;
             top: -50%;
             right: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .history-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
             border-radius: 50%;
         }
 
@@ -37,48 +51,64 @@
         }
 
         .history-title {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 800;
             color: #ffffff;
-            margin: 0;
+            margin: 0 0 0.25rem 0;
             letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .history-subtitle {
-            font-size: 1.05rem;
-            color: rgba(255, 255, 255, 0.85);
-            margin-top: 0.5rem;
-        }
-
-        .filter-card {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f1f5f9;
-        }
-
-        .filter-card h3 {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
 
+        .history-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .filter-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .filter-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .filter-card-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .filter-card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-card-body {
+            padding: 1.5rem;
+        }
+
         .form-label {
             font-weight: 600;
             color: #475569;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 0.5rem;
+            display: block;
         }
 
         .form-select, .form-control {
@@ -88,47 +118,57 @@
             font-size: 1rem;
             transition: all 0.2s;
             background: #ffffff;
+            width: 100%;
         }
 
         .form-select:focus, .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
             outline: none;
         }
 
         .btn-filter {
-            padding: 0.85rem 1.75rem;
+            padding: 0.85rem 2rem;
             border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             color: #ffffff;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.95rem;
             border: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-            cursor: pointer;
         }
 
         .btn-filter:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #0891b2;
+        }
+
+        .btn-filter:active {
+            transform: translateY(0);
         }
 
         .history-card {
             background: #ffffff;
-            border-radius: 20px;
-            padding: 0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f1f5f9;
+            border-radius: 16px;
             overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .history-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
         }
 
         .history-card-header {
-            padding: 2rem;
-            border-bottom: 2px solid #f1f5f9;
+            padding: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -137,26 +177,26 @@
         }
 
         .history-card-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
-            color: #0f172a;
+            color: #1f2937;
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
 
         .record-count-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            background: #eff6ff;
             color: #1e40af;
-            border-radius: 12px;
-            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
             font-weight: 700;
-            font-size: 0.95rem;
-            border: 1px solid #bfdbfe;
+            font-size: 0.85rem;
+            border: 1px solid #dbeafe;
         }
 
         .history-table-wrapper {
@@ -171,7 +211,7 @@
         }
 
         .history-table thead {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background: #f8fafc;
         }
 
         .history-table thead th {
@@ -227,26 +267,26 @@
             width: 40px;
             height: 40px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.9rem;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
         }
 
         .student-name {
             font-weight: 600;
-            color: #0f172a;
+            color: #1f2937;
         }
 
         .class-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            background: #faf5ff;
             color: #7c3aed;
             border-radius: 10px;
             padding: 0.5rem 1rem;
@@ -280,14 +320,14 @@
 
         .empty-state {
             text-align: center;
-            padding: 5rem 2rem;
+            padding: 4rem 2rem;
         }
 
         .empty-state-icon {
             width: 80px;
             height: 80px;
             margin: 0 auto 1.5rem;
-            border-radius: 20px;
+            border-radius: 16px;
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             display: flex;
             align-items: center;
@@ -295,11 +335,15 @@
             color: #b45309;
         }
 
+        .empty-state-icon i {
+            font-size: 2.5rem;
+        }
+
         .empty-state-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.75rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
         }
 
         .empty-state-text {
@@ -307,55 +351,26 @@
             color: #64748b;
         }
 
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-box {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid #e2e8f0;
-        }
-
-        .stat-box-label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-box-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #0f172a;
-        }
-
-        .stat-box-icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
         @media (max-width: 768px) {
             .history-wrapper {
-                padding: 0;
+                padding: 1rem;
             }
 
             .history-hero {
-                padding: 1.75rem;
+                padding: 1.5rem;
             }
 
             .history-title {
-                font-size: 2rem;
+                font-size: 1.75rem;
             }
 
-            .filter-card .row {
+            .filter-card-body .row {
                 gap: 0;
+            }
+
+            .btn-filter {
+                width: 100%;
+                justify-content: center;
             }
 
             .history-table thead {
@@ -368,7 +383,7 @@
                 gap: 1rem;
                 padding: 1.5rem;
                 border: 1px solid #e2e8f0;
-                border-radius: 16px;
+                border-radius: 12px;
                 margin-bottom: 1rem;
                 background: #ffffff;
             }
@@ -403,46 +418,41 @@
         </div>
 
         <div class="filter-card">
-            <h3>
-                <i class="bi bi-funnel-fill"></i>
-                Filtres de Recherche
-            </h3>
-            <form method="get" action="{{ path('teacher_attendance_history') }}">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="group" class="form-label">
-                            <i class="bi bi-journal-bookmark"></i>
-                            Classe
-                        </label>
-                        <select name="group" id="group" class="form-select">
-                            <option value="">Toutes les classes</option>
-                            {% for group in groups %}
-                                <option value="{{ group.id }}" {{ selectedGroupId == group.id ? 'selected' : '' }}>
-                                    {{ group.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
+            <div class="filter-card-header">
+                <h3>
+                    <i class="bi bi-funnel-fill"></i>
+                    Filtres de Recherche
+                </h3>
+            </div>
+            <div class="filter-card-body">
+                <form method="get" action="{{ path('teacher_attendance_history') }}">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="group" class="form-label">Classe</label>
+                            <select name="group" id="group" class="form-select">
+                                <option value="">Toutes les classes</option>
+                                {% for group in groups %}
+                                    <option value="{{ group.id }}" {{ selectedGroupId == group.id ? 'selected' : '' }}>
+                                        {{ group.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="start_date" class="form-label">Date Début</label>
+                            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ startDate }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="end_date" class="form-label">Date Fin</label>
+                            <input type="date" name="end_date" id="end_date" class="form-control" value="{{ endDate }}">
+                        </div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="start_date" class="form-label">
-                            <i class="bi bi-calendar-event"></i>
-                            Date Début
-                        </label>
-                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ startDate }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="end_date" class="form-label">
-                            <i class="bi bi-calendar-check"></i>
-                            Date Fin
-                        </label>
-                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ endDate }}">
-                    </div>
-                </div>
-                <button type="submit" class="btn-filter">
-                    <i class="bi bi-search"></i>
-                    Appliquer les Filtres
-                </button>
-            </form>
+                    <button type="submit" class="btn-filter">
+                        <i class="bi bi-search"></i>
+                        Appliquer les Filtres
+                    </button>
+                </form>
+            </div>
         </div>
 
         <div class="history-card">
@@ -521,10 +531,10 @@
             {% else %}
                 <div class="empty-state">
                     <div class="empty-state-icon">
-                        <i class="bi bi-inbox" style="font-size: 2.5rem;"></i>
+                        <i class="bi bi-inbox"></i>
                     </div>
                     <h2 class="empty-state-title">Aucun Enregistrement Trouvé</h2>
-                    <p class="empty-state-text">Aucun enregistrement ne correspond aux filtres sélectionnés. Essayez de modifier vos critères de recherche.</p>
+                    <p class="empty-state-text">Aucun enregistrement ne correspond aux filtres sélectionnés.</p>
                 </div>
             {% endif %}
         </div>

@@ -108,7 +108,10 @@ class TeacherApiController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $user = $this->getUser();
 
-        $schedule = $scheduleRepo->find($data['scheduleId']);
+        $schedule = $scheduleRepo->find($data['scheduleId'] ?? null);
+        if (!$schedule) {
+            return $this->json(['error' => 'Schedule not found'], 404);
+        }
 
         // If user is not admin, check if they own the schedule
         if (!in_array('ROLE_ADMIN', $user->getRoles())) {
@@ -119,9 +122,16 @@ class TeacherApiController extends AbstractController
         }
 
         $date = new \DateTime($data['date']);
+        $group = $schedule->getStudentGroup();
+        $startTime = $schedule->getStartTime();
+        $endTime = $schedule->getEndTime();
+        $allowedStatuses = ['present', 'absent', 'late', 'excused'];
 
         foreach ($data['attendance'] as $studentId => $status) {
             $student = $studentRepo->find($studentId);
+            if (!$student || $student->getStudentGroup()?->getId() !== $group->getId()) {
+                continue;
+            }
 
             // Check if attendance exists
             $attendance = $em->getRepository(Attendance::class)->findOneBy([
@@ -137,7 +147,10 @@ class TeacherApiController extends AbstractController
                 $attendance->setDate($date);
             }
 
-            $attendance->setStatus($status);
+            $attendance->setStudentGroup($group);
+            $attendance->setStartTime($startTime);
+            $attendance->setEndTime($endTime);
+            $attendance->setStatus(in_array($status, $allowedStatuses, true) ? $status : 'present');
             $em->persist($attendance);
         }
 

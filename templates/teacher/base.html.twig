@@ -146,6 +146,20 @@
 
         <!-- Footer -->
         <div class="border-t border-gray-100 p-4 space-y-3">
+            <a href="{{ path('teacher_settings') }}" 
+               class="nav-link w-full flex items-center justify-center px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 
+                      {% if app.request.get('_route') == 'teacher_settings' %}
+                          bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
+                      {% else %}
+                          text-gray-700 hover:bg-sky-50 hover:text-sky-700
+                      {% endif %}">
+                <i class="bi bi-gear text-lg w-5 flex-shrink-0"></i>
+                <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Parametres</span>
+                {% if app.request.get('_route') == 'teacher_settings' %}
+                    <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
+                {% endif %}
+            </a>
+
             <!-- Logout Button -->
             <a href="{{ path('app_logout') }}" 
                class="logout-btn w-full flex items-center justify-center px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-red-600 hover:bg-red-50 hover:text-red-700 no-underline">

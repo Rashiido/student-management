@@ -2,21 +2,23 @@
 
 {% block body %}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
         .classes-wrapper {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
         }
 
         .classes-hero {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            border-radius: 24px;
-            padding: 2.5rem;
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -26,9 +28,20 @@
             position: absolute;
             top: -50%;
             right: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .classes-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
             border-radius: 50%;
         }
 
@@ -43,48 +56,110 @@
         }
 
         .classes-title {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 800;
             color: #ffffff;
-            margin: 0;
+            margin: 0 0 0.25rem 0;
             letter-spacing: -0.02em;
         }
 
         .classes-subtitle {
-            font-size: 1.05rem;
-            color: rgba(255, 255, 255, 0.85);
-            margin-top: 0.5rem;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
         }
 
         .add-class-btn {
             padding: 0.85rem 1.75rem;
             border-radius: 12px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
             color: #ffffff;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.95rem;
             text-decoration: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            border: none;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .add-class-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
             color: #ffffff;
         }
 
         .classes-card {
             background: #ffffff;
-            border-radius: 20px;
-            padding: 0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f1f5f9;
+            border-radius: 16px;
             overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .classes-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .classes-stats {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .stat-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.1rem;
+        }
+
+        .stat-item-icon.classes-icon {
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+        }
+
+        .stat-item-icon.students-icon {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .stat-item-content {
+            flex: 1;
+        }
+
+        .stat-item-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .stat-item-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
         }
 
         .classes-table-wrapper {
@@ -99,7 +174,7 @@
         }
 
         .classes-table thead {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background: #f8fafc;
         }
 
         .classes-table thead th {
@@ -142,33 +217,33 @@
             width: 48px;
             height: 48px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.25rem;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
         }
 
         .class-name-text {
             font-weight: 600;
             font-size: 1.05rem;
-            color: #0f172a;
+            color: #1f2937;
         }
 
         .student-count-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            background: #eff6ff;
             color: #1e40af;
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 0.5rem 1rem;
             font-weight: 700;
-            font-size: 0.95rem;
-            border: 1px solid #bfdbfe;
+            font-size: 0.9rem;
+            border: 1px solid #dbeafe;
         }
 
         .action-buttons {
@@ -192,34 +267,34 @@
         }
 
         .btn-action.view {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            background: #f1f5f9;
             color: #475569;
-            border-color: #cbd5e1;
+            border-color: #e2e8f0;
         }
 
         .btn-action.view:hover {
-            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            background: #e2e8f0;
             color: #1e293b;
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .btn-action.edit {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             color: #ffffff;
             border-color: transparent;
         }
 
         .btn-action.edit:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background: #0891b2;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
         }
 
         .btn-action.delete {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            background: #fee2e2;
             color: #dc2626;
-            border-color: #fca5a5;
+            border-color: #fecaca;
         }
 
         .btn-action.delete:hover {
@@ -231,26 +306,30 @@
 
         .empty-state {
             text-align: center;
-            padding: 5rem 2rem;
+            padding: 4rem 2rem;
         }
 
         .empty-state-icon {
             width: 80px;
             height: 80px;
             margin: 0 auto 1.5rem;
-            border-radius: 20px;
+            border-radius: 16px;
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #3b82f6;
+            color: #06b6d4;
+        }
+
+        .empty-state-icon i {
+            font-size: 2.5rem;
         }
 
         .empty-state-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.75rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
         }
 
         .empty-state-text {
@@ -260,72 +339,24 @@
         }
 
         .empty-state-btn {
-            padding: 1rem 2rem;
+            padding: 0.85rem 2rem;
             border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             color: #ffffff;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            transition: all 0.25s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
         }
 
         .empty-state-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #0891b2;
             color: #ffffff;
-        }
-
-        .classes-stats {
-            display: flex;
-            gap: 1rem;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1.25rem;
-            background: #ffffff;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .stat-item-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-        }
-
-        .stat-item-icon.classes-icon {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-
-        .stat-item-icon.students-icon {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        .stat-item-label {
-            font-size: 0.75rem;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
-        .stat-item-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0f172a;
         }
 
         @media (max-width: 768px) {
@@ -334,7 +365,7 @@
             }
 
             .classes-hero {
-                padding: 1.75rem;
+                padding: 1.5rem;
             }
 
             .classes-header {
@@ -343,12 +374,20 @@
             }
 
             .classes-title {
-                font-size: 2rem;
+                font-size: 1.75rem;
             }
 
             .add-class-btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .classes-stats {
+                flex-direction: column;
+            }
+
+            .stat-item {
+                min-width: 100%;
             }
 
             .classes-table thead {
@@ -361,7 +400,7 @@
                 gap: 1rem;
                 padding: 1.5rem;
                 border: 1px solid #e2e8f0;
-                border-radius: 16px;
+                border-radius: 12px;
                 margin-bottom: 1rem;
                 background: #ffffff;
             }
@@ -378,10 +417,6 @@
             .btn-action {
                 flex: 1;
                 justify-content: center;
-            }
-
-            .classes-stats {
-                flex-direction: column;
             }
         }
     </style>
@@ -407,7 +442,7 @@
                         <div class="stat-item-icon classes-icon">
                             <i class="bi bi-journal-bookmark"></i>
                         </div>
-                        <div>
+                        <div class="stat-item-content">
                             <div class="stat-item-label">Total Classes</div>
                             <div class="stat-item-value">{{ groups|length }}</div>
                         </div>
@@ -416,7 +451,7 @@
                         <div class="stat-item-icon students-icon">
                             <i class="bi bi-people"></i>
                         </div>
-                        <div>
+                        <div class="stat-item-content">
                             <div class="stat-item-label">Total Élèves</div>
                             <div class="stat-item-value">
                                 {% set totalStudents = 0 %}
@@ -482,7 +517,7 @@
             {% else %}
                 <div class="empty-state">
                     <div class="empty-state-icon">
-                        <i class="bi bi-journal-bookmark" style="font-size: 2.5rem;"></i>
+                        <i class="bi bi-journal-bookmark"></i>
                     </div>
                     <h2 class="empty-state-title">Aucune Classe Assignée</h2>
                     <p class="empty-state-text">Commencez par créer votre première classe pour gérer vos élèves</p>

@@ -452,7 +452,7 @@
         let subjectsLoaded = 0;
         let totalSubjectsToCheck = 0;
         let subjectsWithData = [];
-        let subjectsToCheck = ['Math', 'French', 'English', 'Science']; // All possible subjects
+        let subjectsToCheck = ['Math', 'French']; // Matieres disponibles
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -903,10 +903,8 @@
         // Get subject information for display
         function getSubjectInfo(subjectCode) {
             const subjects = {
-                'Math': { displayName: 'Mathématiques', icon: 'fas fa-calculator', iconClass: 'math' },
-                'French': { displayName: 'Français', icon: 'fas fa-language', iconClass: 'french' },
-                'English': { displayName: 'Anglais', icon: 'fas fa-globe', iconClass: 'english' },
-                'Science': { displayName: 'Sciences', icon: 'fas fa-flask', iconClass: 'science' }
+                'Math': { displayName: 'Mathematiques', icon: 'fas fa-calculator', iconClass: 'math' },
+                'French': { displayName: 'Francais', icon: 'fas fa-language', iconClass: 'french' }
             };
 
             return subjects[subjectCode] || {

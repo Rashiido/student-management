@@ -3,6 +3,7 @@
 namespace App\Controller\Teacher;
 
 use App\Entity\Attendance;
+use App\Entity\Schedule;
 use App\Entity\StudentGroup;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -93,9 +94,12 @@ class AttendanceApiController extends AbstractController
         $data = json_decode($request->getContent(), true) ?? [];
         $groupId = $data['groupId'] ?? null;
         $dateStr = $data['date'] ?? null;
+        $subject = $data['subject'] ?? null;
+        $startTimeStr = $data['startTime'] ?? null;
+        $endTimeStr = $data['endTime'] ?? null;
         $attendanceData = $data['attendance'] ?? [];
 
-        if (!$groupId || !$dateStr || empty($attendanceData)) {
+        if (!$groupId || !$dateStr || !$subject || !$startTimeStr || !$endTimeStr || empty($attendanceData)) {
             return new JsonResponse(['error' => 'Donnees manquantes'], 400);
         }
 
@@ -107,7 +111,37 @@ class AttendanceApiController extends AbstractController
             return new JsonResponse(['error' => 'Acces non autorise'], 403);
         }
 
+        $allowedSubjects = ['Math', 'French'];
+        if (!in_array($subject, $allowedSubjects, true)) {
+            return new JsonResponse(['error' => 'Matiere invalide'], 400);
+        }
+
         $date = new \DateTime($dateStr);
+        $startTime = \DateTime::createFromFormat('H:i', (string) $startTimeStr);
+        $endTime = \DateTime::createFromFormat('H:i', (string) $endTimeStr);
+        if (!$startTime || !$endTime || $endTime <= $startTime) {
+            return new JsonResponse(['error' => 'Horaire invalide'], 400);
+        }
+
+        $dayOfWeek = $date->format('l');
+        $scheduleRepo = $this->entityManager->getRepository(Schedule::class);
+        $schedule = $scheduleRepo->findOneBy([
+            'studentGroup' => $group,
+            'subject' => $subject,
+            'dayOfWeek' => $dayOfWeek,
+            'startTime' => $startTime,
+            'endTime' => $endTime,
+        ]);
+
+        if (!$schedule) {
+            $schedule = new Schedule();
+            $schedule->setStudentGroup($group);
+            $schedule->setSubject($subject);
+            $schedule->setDayOfWeek($dayOfWeek);
+            $schedule->setStartTime(clone $startTime);
+            $schedule->setEndTime(clone $endTime);
+            $this->entityManager->persist($schedule);
+        }
         $savedCount = 0;
 
         foreach ($attendanceData as $studentId => $status) {
@@ -119,15 +153,20 @@ class AttendanceApiController extends AbstractController
             $attendance = $this->entityManager->getRepository(Attendance::class)->findOneBy([
                 'student' => $student,
                 'date' => $date,
+                'startTime' => $startTime,
+                'endTime' => $endTime,
             ]);
 
             if (!$attendance) {
                 $attendance = new Attendance();
                 $attendance->setStudent($student);
-                $attendance->setStudentGroup($group);
-                $attendance->setDate($date);
             }
 
+            $attendance->setStudentGroup($group);
+            $attendance->setDate($date);
+            $attendance->setStartTime($startTime);
+            $attendance->setEndTime($endTime);
+            $attendance->setSchedule($schedule);
             $status = in_array($status, ['present', 'absent'], true) ? $status : 'present';
             $attendance->setStatus($status);
             $this->entityManager->persist($attendance);

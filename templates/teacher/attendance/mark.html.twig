@@ -1,70 +1,98 @@
-{% extends 'teacher/base.html.twig' %}
+﻿{% extends 'teacher/base.html.twig' %}
 
 {% block body %}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
-        .presence-page {
-            font-family: "Manrope", "Segoe UI", sans-serif;
+        .presence-wrapper {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
         }
 
         .presence-hero {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #ffffff;
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
             border-radius: 20px;
-            padding: 2.5rem;
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
             position: relative;
             overflow: hidden;
+        }
+
+        .presence-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
         }
 
         .presence-hero::after {
             content: '';
             position: absolute;
-            right: -60px;
-            top: -60px;
-            width: 220px;
-            height: 220px;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
         }
 
-        .presence-hero h1 {
-            font-size: 2.4rem;
-            font-weight: 700;
-            margin: 0 0 0.75rem 0;
+        .presence-page-header {
             position: relative;
+            z-index: 1;
         }
 
-        .presence-hero p {
+        .presence-page-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.02em;
+        }
+
+        .presence-page-header p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
             margin: 0;
-            opacity: 0.85;
-            font-size: 1.05rem;
-            position: relative;
-        }
-
-        .presence-grid {
-            display: grid;
-            gap: 2rem;
+            font-weight: 400;
         }
 
         .presence-card {
             background: #ffffff;
-            border-radius: 18px;
-            padding: 2rem;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .presence-card h3 {
-            font-size: 1.35rem;
+        .presence-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .presence-card-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .presence-card-header h3 {
+            font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 1.25rem;
-            color: #0f172a;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .presence-card-body {
+            padding: 1.5rem;
         }
 
         .form-label {
@@ -74,6 +102,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 0.5rem;
+            display: block;
         }
 
         .form-select, .form-control {
@@ -83,11 +112,12 @@
             font-size: 1rem;
             transition: all 0.2s;
             background: #ffffff;
+            width: 100%;
         }
 
         .form-select:focus, .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
             outline: none;
         }
 
@@ -97,28 +127,26 @@
             gap: 1.5rem;
             justify-content: space-between;
             align-items: flex-end;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 2px solid #f1f5f9;
+            margin-bottom: 1.5rem;
         }
 
-        .presence-toolbar-header h3 {
-            font-size: 1.5rem;
+        .presence-toolbar-info h4 {
+            font-size: 1.25rem;
             font-weight: 700;
-            margin: 0 0 0.35rem 0;
-            color: #0f172a;
+            margin: 0 0 0.25rem 0;
+            color: #1f2937;
         }
 
         .presence-toolbar-subtitle {
             color: #64748b;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 500;
         }
 
         .presence-meta {
             display: flex;
             flex-wrap: wrap;
-            gap: 1.2rem;
+            gap: 1rem;
             align-items: flex-end;
         }
 
@@ -126,18 +154,22 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: #f1f5f9;
+            background: #eff6ff;
             color: #1e293b;
-            border-radius: 12px;
-            padding: 0.65rem 1.1rem;
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
             font-weight: 600;
-            font-size: 0.9rem;
-            border: 1px solid #cbd5e1;
+            font-size: 0.85rem;
+            border: 1px solid #dbeafe;
+        }
+
+        .presence-chip i {
+            color: #06b6d4;
         }
 
         .presence-chip-value {
             font-weight: 700;
-            color: #2563eb;
+            color: #06b6d4;
         }
 
         .time-input-wrapper {
@@ -146,7 +178,7 @@
         }
 
         .time-input-wrapper .form-select {
-            min-width: 160px;
+            min-width: 150px;
         }
 
         .presence-list {
@@ -157,6 +189,20 @@
             padding-right: 0.5rem;
         }
 
+        .presence-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .presence-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .presence-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
         .presence-row {
             display: flex;
             flex-wrap: wrap;
@@ -164,35 +210,35 @@
             align-items: center;
             gap: 1.5rem;
             padding: 1.25rem 1.5rem;
-            border: 2px solid #f1f5f9;
-            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             background: #ffffff;
             transition: all 0.2s;
         }
 
         .presence-row:hover {
             border-color: #cbd5e1;
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             transform: translateY(-2px);
         }
 
         .student-badge {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .student-info {
             display: flex;
             align-items: center;
-            gap: 1.25rem;
+            gap: 1rem;
             flex: 1;
             min-width: 0;
         }
@@ -204,8 +250,8 @@
 
         .student-name {
             font-weight: 700;
-            color: #0f172a;
-            font-size: 1.05rem;
+            color: #1f2937;
+            font-size: 1rem;
             margin-bottom: 0.25rem;
         }
 
@@ -216,30 +262,41 @@
         }
 
         .presence-toggle {
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            display: flex;
+        }
+
+        .presence-toggle .btn-check {
+            position: absolute;
+            clip: rect(0, 0, 0, 0);
+            pointer-events: none;
         }
 
         .presence-toggle .btn-check + label {
             border-radius: 0;
-            padding: 0.65rem 1.35rem;
+            padding: 0.65rem 1.25rem;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0;
         }
 
         .presence-toggle .btn-outline-success {
             background: #ffffff;
             color: #10b981;
             border: 2px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
         }
 
         .presence-toggle .btn-outline-danger {
             background: #ffffff;
             color: #ef4444;
             border: 2px solid #e2e8f0;
-            border-left: none;
+            border-left: 1px solid #e2e8f0;
         }
 
         .presence-toggle .btn-check:checked + label.btn-outline-success {
@@ -258,47 +315,64 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             padding-top: 1.5rem;
-            border-top: 2px solid #f1f5f9;
+            border-top: 2px solid #e2e8f0;
         }
 
         .presence-stats {
             color: #64748b;
             font-size: 0.9rem;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .presence-save {
-            padding: 0.9rem 2.5rem;
+            padding: 0.85rem 2rem;
             border-radius: 12px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             border: none;
             color: #ffffff;
             font-weight: 700;
-            font-size: 1rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 0.95rem;
+            transition: all 0.2s;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
         }
 
         .presence-save:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #0891b2;
+        }
+
+        .presence-save:active {
+            transform: translateY(0);
         }
 
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
             color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
         }
 
         @media (max-width: 768px) {
-            .presence-hero {
-                padding: 1.75rem;
+            .presence-wrapper {
+                padding: 1rem;
             }
 
-            .presence-hero h1 {
-                font-size: 1.8rem;
+            .presence-hero {
+                padding: 1.5rem;
+            }
+
+            .presence-page-header h2 {
+                font-size: 1.75rem;
             }
 
             .presence-toolbar {
@@ -309,6 +383,10 @@
             .presence-meta {
                 flex-direction: column;
                 align-items: stretch;
+            }
+
+            .time-input-wrapper .form-select {
+                min-width: 100%;
             }
 
             .presence-row {
@@ -324,18 +402,32 @@
             .presence-toggle .btn-check + label {
                 flex: 1;
             }
+
+            .presence-footer {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .presence-save {
+                width: 100%;
+            }
         }
     </style>
 
-    <div class="presence-page">
+    <div class="presence-wrapper">
         <div class="presence-hero">
-            <h1>Gestion des presences</h1>
-            <p>Selectionnez une classe, choisissez l horaire, puis marquez la presence.</p>
+            <div class="presence-page-header">
+                <h2>Gestion des présences</h2>
+                <p>Sélectionnez une classe, choisissez l'horaire et la matière, puis marquez la présence</p>
+            </div>
         </div>
 
-        <div class="presence-grid">
-            <div class="presence-card">
-                <h3>Selectionner une classe</h3>
+        <div class="presence-card">
+            <div class="presence-card-header">
+                <h3>Sélectionner une classe</h3>
+            </div>
+            <div class="presence-card-body">
                 <form method="get" action="{{ path('teacher_attendance_mark') }}">
                     <div class="mb-0">
                         <label for="group_id" class="form-label">Classe</label>
@@ -350,25 +442,39 @@
                     </div>
                 </form>
             </div>
+        </div>
 
-            {% if selectedGroup %}
-                <div class="presence-card">
-                    <form method="post" action="{{ path('teacher_attendance_mark', {'group_id': selectedGroup.id}) }}">
+        {% if selectedGroup %}
+            <div class="presence-card">
+                <form method="post" action="{{ path('teacher_attendance_mark', {'group_id': selectedGroup.id}) }}">
+                    <div class="presence-card-body">
                         <div class="presence-toolbar">
-                            <div class="presence-toolbar-header">
-                                <h3>Feuille de presence</h3>
+                            <div class="presence-toolbar-info">
+                                <h4>Feuille de présence</h4>
                                 <div class="presence-toolbar-subtitle">{{ selectedGroup.name }}</div>
                             </div>
                             <div class="presence-meta">
                                 <span class="presence-chip">
-                                    Eleves: <span class="presence-chip-value">{{ students|length }}</span>
+                                    <i class="bi bi-people-fill"></i>
+                                    <span class="presence-chip-value">{{ students|length }}</span> Élèves
                                 </span>
                                 <span class="presence-chip">
-                                    Date: <span class="presence-chip-value">{{ today|date('d/m/Y') }}</span>
+                                    <i class="bi bi-calendar3"></i>
+                                    <span class="presence-chip-value">{{ today|date('d/m/Y') }}</span>
                                 </span>
                                 <input type="hidden" name="attendance_date" id="attendance_date" value="{{ today|date('Y-m-d') }}">
                                 <div class="time-input-wrapper">
-                                    <label for="start_time" class="form-label">Heure debut</label>
+                                    <label for="subject" class="form-label">Matière</label>
+                                    <select name="subject" id="subject" class="form-select">
+                                        {% for code, label in subjects %}
+                                            <option value="{{ code }}" {{ code == selectedSubject ? 'selected' : '' }}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="time-input-wrapper">
+                                    <label for="start_time" class="form-label">Heure début</label>
                                     <select name="start_time" id="start_time" class="form-select">
                                         {% for time in timeOptions %}
                                             {% if time != '19:00' %}
@@ -407,11 +513,11 @@
                                                 <div class="student-sub">Niveau: {{ student.niveauScolaire }}</div>
                                             </div>
                                         </div>
-                                        <div class="btn-group presence-toggle" role="group" aria-label="Presence">
+                                        <div class="btn-group presence-toggle" role="group" aria-label="Présence">
                                             <input class="btn-check" type="radio" name="attendances[{{ student.id }}]" id="present-{{ student.id }}" value="present" checked>
-                                            <label class="btn btn-outline-success btn-sm" for="present-{{ student.id }}">Present</label>
+                                            <label class="btn btn-outline-success" for="present-{{ student.id }}">Présent</label>
                                             <input class="btn-check" type="radio" name="attendances[{{ student.id }}]" id="absent-{{ student.id }}" value="absent">
-                                            <label class="btn btn-outline-danger btn-sm" for="absent-{{ student.id }}">Absent</label>
+                                            <label class="btn btn-outline-danger" for="absent-{{ student.id }}">Absent</label>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -419,16 +525,21 @@
 
                             <div class="presence-footer">
                                 <div class="presence-stats">
-                                    Total: {{ students|length }} eleve{{ students|length > 1 ? 's' : '' }} | Horaire: {{ selectedStartTime }} - {{ selectedEndTime }}
+                                    Total: {{ students|length }} élève{{ students|length > 1 ? 's' : '' }} | Horaire: {{ selectedStartTime }} - {{ selectedEndTime }}
                                 </div>
-                                <button type="submit" class="presence-save">Enregistrer</button>
+                                <button type="submit" class="presence-save">
+                                    <i class="bi bi-check-circle"></i> Enregistrer
+                                </button>
                             </div>
                         {% else %}
-                            <div class="empty-state">Aucun eleve dans cette classe.</div>
+                            <div class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <div>Aucun élève dans cette classe.</div>
+                            </div>
                         {% endif %}
-                    </form>
-                </div>
-            {% endif %}
-        </div>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

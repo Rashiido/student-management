@@ -2,36 +2,376 @@
 
 {% block title %}Présences - Aujourd'hui{% endblock %}
 
-{% block body %}
-<h2>Présences – {{ today|date('d/m/Y') }}</h2>
+{% block content_title %}{% endblock %}
+{% block content_header_wrapper %}{% endblock %}
 
-{% if schedules|length == 0 %}
-  <p>Aucun horaire aujourd’hui.</p>
-{% else %}
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Groupe</th>
-        <th>Matière</th>
-        <th>Heure</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for sc in schedules %}
-      <tr>
-        <td>{{ sc.studentGroup.name }}</td>
-        <td>{{ sc.subject }}</td>
-        <td>{{ sc.startTime|date('H:i') }} - {{ sc.endTime|date('H:i') }}</td>
-        <td>
-          <a class="btn btn-primary"
-             href="{{ path('teacher_attendance_mark_schedule', {id: sc.id}) }}">
-            Marquer
-          </a>
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-{% endif %}
+{% block main %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        .schedules-wrapper {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .schedules-hero {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .schedules-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .schedules-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .schedules-page-header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .schedules-page-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 0.65rem 1.25rem;
+            font-weight: 700;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .schedules-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .schedules-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .schedules-card-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .schedules-card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .schedules-list {
+            display: grid;
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+
+        .schedule-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .schedule-row:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .schedule-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            flex: 1;
+            align-items: center;
+        }
+
+        .schedule-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .schedule-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+        }
+
+        .schedule-value {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1rem;
+        }
+
+        .group-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1e40af;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 1px solid #bfdbfe;
+        }
+
+        .subject-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            color: #7c3aed;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 1px solid #e9d5ff;
+        }
+
+        .time-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #b45309;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 1px solid #fcd34d;
+        }
+
+        .btn-mark {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-mark:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #0891b2;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .btn-mark:active {
+            transform: translateY(0);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b45309;
+        }
+
+        .empty-state-icon i {
+            font-size: 2.5rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .schedules-wrapper {
+                padding: 1rem;
+            }
+
+            .schedules-hero {
+                padding: 1.5rem;
+            }
+
+            .schedules-page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .schedules-page-header h2 {
+                font-size: 1.75rem;
+            }
+
+            .schedule-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .schedule-info {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .btn-mark {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="schedules-wrapper">
+        <div class="schedules-hero">
+            <div class="schedules-page-header">
+                <h2>
+                    <i class="bi bi-calendar-check"></i>
+                    Présences d'aujourd'hui
+                </h2>
+                <span class="date-badge">
+                    <i class="bi bi-calendar3"></i>
+                    {{ today|date('d/m/Y') }}
+                </span>
+            </div>
+        </div>
+
+        <div class="schedules-card">
+            <div class="schedules-card-header">
+                <h3>
+                    <i class="bi bi-clock-history"></i>
+                    Horaires du jour
+                    {% if schedules|length > 0 %}
+                        ({{ schedules|length }})
+                    {% endif %}
+                </h3>
+            </div>
+
+            {% if schedules|length == 0 %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-calendar-x"></i>
+                    </div>
+                    <h2 class="empty-state-title">Aucun horaire aujourd'hui</h2>
+                    <p class="empty-state-text">Vous n'avez aucun cours prévu pour aujourd'hui.</p>
+                </div>
+            {% else %}
+                <div class="schedules-list">
+                    {% for sc in schedules %}
+                        <div class="schedule-row">
+                            <div class="schedule-info">
+                                <div class="schedule-detail">
+                                    <span class="schedule-label">Groupe</span>
+                                    <span class="group-badge">
+                                        <i class="bi bi-journal-bookmark"></i>
+                                        {{ sc.studentGroup.name }}
+                                    </span>
+                                </div>
+                                <div class="schedule-detail">
+                                    <span class="schedule-label">Matière</span>
+                                    <span class="subject-badge">
+                                        <i class="bi bi-book"></i>
+                                        {{ sc.subject }}
+                                    </span>
+                                </div>
+                                <div class="schedule-detail">
+                                    <span class="schedule-label">Horaire</span>
+                                    <span class="time-badge">
+                                        <i class="bi bi-clock"></i>
+                                        {{ sc.startTime|date('H:i') }} - {{ sc.endTime|date('H:i') }}
+                                    </span>
+                                </div>
+                            </div>
+                            <a class="btn-mark" href="{{ path('teacher_attendance_mark_schedule', {id: sc.id}) }}">
+                                <i class="bi bi-check-circle"></i>
+                                Marquer
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

@@ -71,39 +71,68 @@ class StudentController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
-            $firstName = trim((string) $request->request->get('firstName'));
-            $lastName = trim((string) $request->request->get('lastName'));
-            $niveauScolaire = trim((string) $request->request->get('niveauScolaire'));
-
-            if ($firstName === '' || $lastName === '' || $niveauScolaire === '') {
-                $this->addFlash('error', 'Tous les champs sont obligatoires.');
-                return $this->render('teacher/student/add.html.twig', [
-                    'teacher' => $teacher,
-                    'groups' => $teacher->getStudentGroups(),
-                ]);
-            }
-
             $groupId = $request->request->get('group');
             $group = $groupId ? $em->getRepository(StudentGroup::class)->find($groupId) : null;
             if (!$group || $group->getTeacher() !== $teacher) {
-                $this->addFlash('error', 'Veuillez selectionner une classe valide.');
+                $this->addFlash('error', 'Veuillez sélectionner une classe valide.');
                 return $this->render('teacher/student/add.html.twig', [
                     'teacher' => $teacher,
                     'groups' => $teacher->getStudentGroups(),
                 ]);
             }
 
-            $student = new Student();
-            $student->setFirstName($firstName);
-            $student->setLastName($lastName);
-            $student->setNiveauScolaire($niveauScolaire);
-            $student->setSchool($teacher->getSchool());
-            $student->setStudentGroup($group);
+            $studentsData = $request->request->all('students');
+            if (!is_array($studentsData)) {
+                $studentsData = [];
+            }
 
-            $em->persist($student);
+            $studentsToCreate = [];
+            foreach ($studentsData as $row) {
+                $firstName = trim((string) ($row['firstName'] ?? ''));
+                $lastName = trim((string) ($row['lastName'] ?? ''));
+                $niveauScolaire = trim((string) ($row['niveauScolaire'] ?? ''));
+
+                $allEmpty = $firstName === '' && $lastName === '' && $niveauScolaire === '';
+                if ($allEmpty) {
+                    continue;
+                }
+
+                if ($firstName === '' || $lastName === '' || $niveauScolaire === '') {
+                    $this->addFlash('error', 'Chaque élève rempli doit avoir un prénom, un nom et un niveau scolaire.');
+                    return $this->render('teacher/student/add.html.twig', [
+                        'teacher' => $teacher,
+                        'groups' => $teacher->getStudentGroups(),
+                    ]);
+                }
+
+                $studentsToCreate[] = [
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'niveauScolaire' => $niveauScolaire,
+                ];
+            }
+
+            if ($studentsToCreate === []) {
+                $this->addFlash('error', 'Veuillez renseigner au moins un élève.');
+                return $this->render('teacher/student/add.html.twig', [
+                    'teacher' => $teacher,
+                    'groups' => $teacher->getStudentGroups(),
+                ]);
+            }
+
+            foreach ($studentsToCreate as $data) {
+                $student = new Student();
+                $student->setFirstName($data['firstName']);
+                $student->setLastName($data['lastName']);
+                $student->setNiveauScolaire($data['niveauScolaire']);
+                $student->setSchool($teacher->getSchool());
+                $student->setStudentGroup($group);
+                $em->persist($student);
+            }
+
             $em->flush();
 
-            $this->addFlash('success', 'Eleve ajoute avec succes.');
+            $this->addFlash('success', count($studentsToCreate) . ' élève(s) ajouté(s) avec succès.');
             return $this->redirectToRoute('teacher_my_students');
         }
 

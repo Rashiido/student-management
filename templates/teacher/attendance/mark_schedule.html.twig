@@ -2,41 +2,387 @@
 
 {% block title %}Marquer présence{% endblock %}
 
-{% block body %}
-<h2>Marquer présence</h2>
-<p>
-  <strong>Groupe:</strong> {{ group.name }} |
-  <strong>Matière:</strong> {{ schedule.subject }} |
-  <strong>Horaire:</strong> {{ schedule.startTime|date('H:i') }} - {{ schedule.endTime|date('H:i') }} |
-  <strong>Date:</strong> {{ today|date('d/m/Y') }}
-</p>
+{% block content_title %}{% endblock %}
+{% block content_header_wrapper %}{% endblock %}
 
-<form method="post">
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Étudiant</th>
-        <th>Statut</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for student in students %}
-      <tr>
-        <td>{{ student.firstName }} {{ student.lastName }}</td>
-        <td>
-          <select class="form-select" name="attendance[{{ student.id }}]">
-            <option value="present">Présent</option>
-            <option value="absent">Absent</option>
-            <option value="late">Retard</option>
-            <option value="excused">Excusé</option>
-          </select>
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+{% block main %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
-  <button class="btn btn-success">Enregistrer</button>
-  <a class="btn btn-secondary" href="{{ path('teacher_attendance_today') }}">Retour</a>
-</form>
+        .attendance-wrapper {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .attendance-hero {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .attendance-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .attendance-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .attendance-page-header {
+            position: relative;
+            z-index: 1;
+        }
+
+        .attendance-page-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.02em;
+        }
+
+        .attendance-info-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .info-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .info-chip i {
+            font-size: 1rem;
+        }
+
+        .attendance-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .attendance-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .attendance-card-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .attendance-card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .attendance-card-body {
+            padding: 1.5rem;
+        }
+
+        .attendance-list {
+            display: grid;
+            gap: 1rem;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .attendance-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .attendance-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .attendance-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .attendance-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.25rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .attendance-row:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .student-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .student-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: #ffffff;
+            font-weight: 600;
+            min-width: 160px;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+            outline: none;
+        }
+
+        .form-select option {
+            padding: 0.5rem;
+        }
+
+        .attendance-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-success {
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #0891b2;
+            color: #ffffff;
+        }
+
+        .btn-success:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            background: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            color: #334155;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .attendance-wrapper {
+                padding: 1rem;
+            }
+
+            .attendance-hero {
+                padding: 1.5rem;
+            }
+
+            .attendance-page-header h2 {
+                font-size: 1.75rem;
+            }
+
+            .info-chip {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.85rem;
+            }
+
+            .attendance-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .form-select {
+                width: 100%;
+            }
+
+            .attendance-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-success,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="attendance-wrapper">
+        <div class="attendance-hero">
+            <div class="attendance-page-header">
+                <h2>Marquer présence</h2>
+                <div class="attendance-info-chips">
+                    <span class="info-chip">
+                        <i class="bi bi-journal-bookmark"></i>
+                        {{ group.name }}
+                    </span>
+                    <span class="info-chip">
+                        <i class="bi bi-book"></i>
+                        {{ schedule.subject }}
+                    </span>
+                    <span class="info-chip">
+                        <i class="bi bi-clock"></i>
+                        {{ schedule.startTime|date('H:i') }} - {{ schedule.endTime|date('H:i') }}
+                    </span>
+                    <span class="info-chip">
+                        <i class="bi bi-calendar3"></i>
+                        {{ today|date('d/m/Y') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="attendance-card">
+            <div class="attendance-card-header">
+                <h3>
+                    <i class="bi bi-people-fill"></i>
+                    Liste des étudiants ({{ students|length }})
+                </h3>
+            </div>
+            <div class="attendance-card-body">
+                <form method="post">
+                    <div class="attendance-list">
+                        {% for student in students %}
+                            <div class="attendance-row">
+                                <div class="student-info">
+                                    <div class="student-badge">
+                                        {{ student.firstName|first|upper }}{{ student.lastName|first|upper }}
+                                    </div>
+                                    <div class="student-details">
+                                        <div class="student-name">{{ student.firstName }} {{ student.lastName }}</div>
+                                    </div>
+                                </div>
+                                <select class="form-select" name="attendance[{{ student.id }}]">
+                                    <option value="present">✓ Présent</option>
+                                    <option value="absent">✗ Absent</option>
+                                    <option value="late">⏱ Retard</option>
+                                    <option value="excused">📋 Excusé</option>
+                                </select>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="attendance-footer">
+                        <a class="btn-secondary" href="{{ path('teacher_attendance_today') }}">
+                            <i class="bi bi-arrow-left"></i>
+                            Retour
+                        </a>
+                        <button type="submit" class="btn-success">
+                            <i class="bi bi-check-circle"></i>
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}

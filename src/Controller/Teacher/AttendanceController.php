@@ -3,8 +3,10 @@
 namespace App\Controller\Teacher;
 
 use App\Entity\Attendance;
+use App\Entity\Schedule;
 use App\Entity\StudentGroup;
 use App\Repository\AttendanceRepository;
+use App\Repository\ScheduleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AttendanceController extends AbstractController
 {
     #[Route('/mark', name: 'teacher_attendance_mark')]
-    public function mark(Request $request, EntityManagerInterface $em): Response
+    public function mark(Request $request, EntityManagerInterface $em, ScheduleRepository $scheduleRepository): Response
     {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
@@ -38,9 +40,14 @@ class AttendanceController extends AbstractController
             }
         }
 
+        $subjects = [
+            'Math' => 'Mathematiques',
+            'French' => 'Francais',
+        ];
         $timeOptions = $this->buildTimeOptions('08:00', '19:00', 30);
         $selectedStartTime = (string) ($request->request->get('start_time') ?? '08:00');
         $selectedEndTime = (string) ($request->request->get('end_time') ?? '10:00');
+        $selectedSubject = (string) ($request->request->get('subject') ?? 'Math');
 
         if ($request->isMethod('POST') && $selectedGroup) {
             $attendances = $request->request->all('attendances');
@@ -54,6 +61,9 @@ class AttendanceController extends AbstractController
                 $hasError = true;
             } elseif (!in_array($selectedStartTime, $timeOptions, true) || !in_array($selectedEndTime, $timeOptions, true)) {
                 $this->addFlash('error', 'Heure invalide. Selectionnez une heure autorisee.');
+                $hasError = true;
+            } elseif (!array_key_exists($selectedSubject, $subjects)) {
+                $this->addFlash('error', 'Matiere invalide. Selectionnez une matiere autorisee.');
                 $hasError = true;
             }
 
@@ -87,6 +97,25 @@ class AttendanceController extends AbstractController
             }
 
             if (!$hasError) {
+                $dayOfWeek = $date->format('l');
+                $schedule = $scheduleRepository->findOneBy([
+                    'studentGroup' => $selectedGroup,
+                    'subject' => $selectedSubject,
+                    'dayOfWeek' => $dayOfWeek,
+                    'startTime' => $startTime,
+                    'endTime' => $endTime,
+                ]);
+
+                if (!$schedule) {
+                    $schedule = new Schedule();
+                    $schedule->setStudentGroup($selectedGroup);
+                    $schedule->setSubject($selectedSubject);
+                    $schedule->setDayOfWeek($dayOfWeek);
+                    $schedule->setStartTime(clone $startTime);
+                    $schedule->setEndTime(clone $endTime);
+                    $em->persist($schedule);
+                }
+
                 foreach ($attendances as $studentId => $status) {
                     $student = $em->getRepository(\App\Entity\Student::class)->find($studentId);
                     if ($student && $student->getStudentGroup() === $selectedGroup) {
@@ -106,6 +135,7 @@ class AttendanceController extends AbstractController
 
                         $attendance->setStartTime($startTime);
                         $attendance->setEndTime($endTime);
+                        $attendance->setSchedule($schedule);
 
                         $status = in_array($status, ['present', 'absent'], true) ? $status : 'present';
                         $attendance->setStatus($status);
@@ -127,6 +157,8 @@ class AttendanceController extends AbstractController
             'timeOptions' => $timeOptions,
             'selectedStartTime' => $selectedStartTime,
             'selectedEndTime' => $selectedEndTime,
+            'subjects' => $subjects,
+            'selectedSubject' => $selectedSubject,
         ]);
     }
 

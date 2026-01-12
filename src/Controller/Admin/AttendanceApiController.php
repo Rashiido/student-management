@@ -51,7 +51,7 @@ class AttendanceApiController extends AbstractController
             // Validate group belongs to school
             $group = $groupRepo->findOneBy(['id' => $groupId, 'school' => $schoolId]);
             if (!$group) {
-                return $this->json(['error' => 'Groupe non trouvé dans cette école'], 404);
+                return $this->json(['error' => 'Groupe non trouvÃ© dans cette Ã©cole'], 404);
             }
         }
 
@@ -87,7 +87,7 @@ class AttendanceApiController extends AbstractController
         // Validate group belongs to school
         $group = $groupRepo->findOneBy(['id' => $groupId, 'school' => $schoolId]);
         if (!$group) {
-            return $this->json(['error' => 'Groupe non trouvé dans cette école'], 404);
+            return $this->json(['error' => 'Groupe non trouvÃ© dans cette Ã©cole'], 404);
         }
 
         // Get students from this group AND this school
@@ -134,7 +134,7 @@ class AttendanceApiController extends AbstractController
         ]);
 
         if (!$studentGroup) {
-            return $this->json(['success' => false, 'error' => 'Groupe invalide ou n\'appartient pas à cette école']);
+            return $this->json(['success' => false, 'error' => 'Groupe invalide ou n\'appartient pas Ã  cette Ã©cole']);
         }
 
         // 2. Get the day of week from the selected date
@@ -168,7 +168,7 @@ class AttendanceApiController extends AbstractController
             ]);
 
             if (!$student) {
-                $errors[] = "Étudiant ID $studentId non trouvé dans ce groupe/école";
+                $errors[] = "Ã‰tudiant ID $studentId non trouvÃ© dans ce groupe/Ã©cole";
                 continue;
             }
 
@@ -213,7 +213,7 @@ class AttendanceApiController extends AbstractController
 
             return $this->json([
                 'success' => true,
-                'message' => "$savedCount présences enregistrées",
+                'message' => "$savedCount prÃ©sences enregistrÃ©es",
                 'scheduleId' => $schedule->getId(),
                 'errors' => $errors
             ]);
@@ -252,12 +252,12 @@ class AttendanceApiController extends AbstractController
         $exportData = [
             'fileName' => "presences_" . date('Y-m-d_H-i') . ".xlsx",
             'data' => [
-                'École' => $schoolId ? "École #$schoolId" : "Toutes les écoles",
+                'Ã‰cole' => $schoolId ? "Ã‰cole #$schoolId" : "Toutes les Ã©coles",
                 'Groupe' => $data['groupName'] ?? "Groupe #$groupId",
-                'Matière' => $subject,
+                'MatiÃ¨re' => $subject,
                 'Date' => $date,
                 'Horaire' => "$startTime - $endTime",
-                'Étudiants' => array_map(function ($studentId, $studentData) {
+                'Ã‰tudiants' => array_map(function ($studentId, $studentData) {
                     return [
                         'ID' => $studentId,
                         'Nom' => $studentData['firstName'] . ' ' . $studentData['lastName'],
@@ -670,10 +670,10 @@ class AttendanceApiController extends AbstractController
         foreach ($attendances as $attendance) {
             $exportData[] = [
                 'Date' => $attendance->getDate()->format('d/m/Y'),
-                'Élève' => $attendance->getStudent()->getFirstName() . ' ' . $attendance->getStudent()->getLastName(),
+                'Ã‰lÃ¨ve' => $attendance->getStudent()->getFirstName() . ' ' . $attendance->getStudent()->getLastName(),
                 'Groupe' => $attendance->getStudentGroup()->getName(),
-                'École' => $attendance->getStudentGroup()->getSchool()->getName(),
-                'Matière' => $attendance->getSchedule()->getSubject(),
+                'Ã‰cole' => $attendance->getStudentGroup()->getSchool()->getName(),
+                'MatiÃ¨re' => $attendance->getSchedule()->getSubject(),
                 'Horaire' => $attendance->getSchedule()->getStartTime()->format('H:i') . ' - ' . $attendance->getSchedule()->getEndTime()->format('H:i'),
                 'Statut' => $this->getStatusLabel($attendance->getStatus()),
                 'Niveau' => $attendance->getStudent()->getNiveauScolaire()
@@ -691,10 +691,10 @@ class AttendanceApiController extends AbstractController
     private function getStatusLabel(string $status): string
     {
         $labels = [
-            'present' => 'Présent',
+            'present' => 'PrÃ©sent',
             'absent' => 'Absent',
             'late' => 'En retard',
-            'excused' => 'Excusé'
+            'excused' => 'ExcusÃ©'
         ];
 
         return $labels[$status] ?? $status;
@@ -791,23 +791,22 @@ class AttendanceApiController extends AbstractController
             'students' => $students
         ]);
     }
-    #[Route('/api/available-subjects', name: 'admin_api_available_subjects', methods: ['GET'])]
-    public function getAvailableSubjects(Request $request): JsonResponse
+    #[Route('/admin/api/available-subjects', name: 'admin_api_available_subjects', methods: ['GET'])]
+    public function getAvailableSubjects(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $schoolId = $request->query->get('schoolId');
         $groupId = $request->query->get('groupId');
         $date = $request->query->get('date');
 
         if (!$schoolId || !$groupId || !$date) {
-            return new JsonResponse(['error' => 'Paramètres manquants'], 400);
+            return new JsonResponse(['error' => 'Parametres manquants'], 400);
         }
 
-        // Query distinct subjects that have attendance for this group/date
-        $subjects = $this->entityManager->createQueryBuilder()
-            ->select('DISTINCT a.subject')
-            ->from('App\Entity\Attendance', 'a')
+        $subjects = $entityManager->createQueryBuilder()
+            ->select('DISTINCT s.subject AS subject')
+            ->from('App\\Entity\\Attendance', 'a')
             ->join('a.schedule', 's')
-            ->join('s.group', 'g')
+            ->join('s.studentGroup', 'g')
             ->join('g.school', 'sc')
             ->where('g.id = :groupId')
             ->andWhere('sc.id = :schoolId')
@@ -815,30 +814,22 @@ class AttendanceApiController extends AbstractController
             ->setParameter('groupId', $groupId)
             ->setParameter('schoolId', $schoolId)
             ->setParameter('date', new \DateTime($date))
-            ->orderBy('a.subject', 'ASC')
+            ->orderBy('s.subject', 'ASC')
             ->getQuery()
             ->getResult();
 
-        // Extract subject names from result
-        $subjectNames = array_map(function($item) {
+        $subjectNames = array_map(function ($item) {
             return $item['subject'];
         }, $subjects);
 
-        // Map subject codes to display names
         $subjectDisplayNames = [];
         foreach ($subjectNames as $subject) {
-            switch($subject) {
+            switch ($subject) {
                 case 'Math':
-                    $subjectDisplayNames[] = 'Mathématiques';
+                    $subjectDisplayNames[] = 'Mathematiques';
                     break;
                 case 'French':
-                    $subjectDisplayNames[] = 'Français';
-                    break;
-                case 'English':
-                    $subjectDisplayNames[] = 'Anglais';
-                    break;
-                case 'Science':
-                    $subjectDisplayNames[] = 'Sciences';
+                    $subjectDisplayNames[] = 'Francais';
                     break;
                 default:
                     $subjectDisplayNames[] = $subject;
@@ -856,3 +847,7 @@ class AttendanceApiController extends AbstractController
 
 
 }
+
+
+
+

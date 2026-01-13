@@ -1,0 +1,452 @@
+{% extends 'teacher/base.html.twig' %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        .add-class-wrapper {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .add-class-hero {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-class-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .add-class-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .add-class-header {
+            position: relative;
+            z-index: 1;
+        }
+
+        .add-class-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .add-class-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .form-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-card-body {
+            padding: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label .required {
+            color: #ef4444;
+        }
+
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.85rem 1.15rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #ffffff;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.15rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.25rem;
+            pointer-events: none;
+        }
+
+        .input-icon-wrapper .form-control {
+            padding-left: 3rem;
+        }
+
+        .form-help-text {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .info-box-icon {
+            font-size: 1.5rem;
+            color: #06b6d4;
+            flex-shrink: 0;
+        }
+
+        .info-box-content {
+            flex: 1;
+        }
+
+        .info-box-title {
+            font-weight: 700;
+            color: #0284C7;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .info-box-text {
+            font-size: 0.9rem;
+            color: #0284C7;
+            margin: 0;
+        }
+
+        .examples-box {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .examples-title {
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .examples-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .example-tag {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.4rem 0.85rem;
+            font-size: 0.85rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .btn-submit {
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #0891b2;
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-cancel {
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            color: #334155;
+            text-decoration: none;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-weight: 700;
+            color: #166534;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-text {
+            font-size: 0.85rem;
+            color: #166534;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .add-class-wrapper {
+                padding: 1rem;
+            }
+
+            .add-class-hero {
+                padding: 1.5rem;
+            }
+
+            .add-class-title {
+                font-size: 1.75rem;
+            }
+
+            .form-card-body {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn-submit,
+            .btn-cancel {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="add-class-wrapper">
+        <div class="add-class-hero">
+            <div class="add-class-header">
+                <h1 class="add-class-title">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    Créer une Classe
+                </h1>
+                <p class="add-class-subtitle">Ajoutez une nouvelle classe à votre liste d'enseignement</p>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-card-body">
+                <div class="info-box">
+                    <div class="info-box-icon">
+                        <i class="bi bi-lightbulb-fill"></i>
+                    </div>
+                    <div class="info-box-content">
+                        <div class="info-box-title">Conseil</div>
+                        <p class="info-box-text">Utilisez un nom clair et descriptif pour identifier facilement votre classe</p>
+                    </div>
+                </div>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="feature-content">
+                            <div class="feature-title">Gérez vos élèves</div>
+                            <p class="feature-text">Ajoutez et organisez vos élèves</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+                        <div class="feature-content">
+                            <div class="feature-title">Suivez les présences</div>
+                            <p class="feature-text">Marquez les présences facilement</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post">
+                    <div class="mb-4">
+                        <label for="name" class="form-label">
+                            <i class="bi bi-journal-bookmark"></i>
+                            Nom de la Classe
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-journal-text input-icon"></i>
+                            <input
+                                type="text"
+                                name="name"
+                                id="name"
+                                class="form-control"
+                                required
+                                placeholder="Ex: 6ème A, CM1 B, Terminal S..."
+                                autocomplete="off"
+                                maxlength="100">
+                        </div>
+                        <div class="form-help-text">
+                            <i class="bi bi-info-circle"></i>
+                            Donnez un nom unique et reconnaissable à votre classe
+                        </div>
+                    </div>
+
+                    <div class="examples-box">
+                        <div class="examples-title">
+                            <i class="bi bi-lightbulb"></i>
+                            Exemples de noms de classe
+                        </div>
+                        <div class="examples-list">
+                            <span class="example-tag">6ème A</span>
+                            <span class="example-tag">CM1 B</span>
+                            <span class="example-tag">Terminal S</span>
+                            <span class="example-tag">Bac Science</span>
+                            <span class="example-tag">5ème Année</span>
+                            <span class="example-tag">Groupe Mathématiques</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="{{ path('teacher_my_groups') }}" class="btn-cancel">
+                            <i class="bi bi-x-circle"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn-submit">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Créer la Classe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

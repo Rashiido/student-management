@@ -1,0 +1,495 @@
+{# templates/admin/teacher/index.html.twig #}
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Enseignants{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .hero-header {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .hero-content p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .hero-action {
+            padding: 0.95rem 1.75rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ffffff;
+            color: #0284C7;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.4);
+            color: #0284C7;
+        }
+
+        .teachers-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+            border-color: transparent;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1rem;
+            color: #ffffff;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            color: #06b6d4;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .teachers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .teacher-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .teacher-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(6, 182, 212, 0.2);
+            border-color: transparent;
+        }
+
+        .teacher-header {
+            padding: 1.75rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .teacher-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .teacher-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .teacher-school {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .teacher-body {
+            padding: 1.5rem;
+        }
+
+        .teacher-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            color: #475569;
+            font-size: 0.95rem;
+        }
+
+        .teacher-info-item i {
+            color: #0EA5E9;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .teacher-footer {
+            padding: 1.25rem 1.5rem;
+            background: #f8fafc;
+            border-top: 2px solid #e2e8f0;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .hero-header {
+                padding: 1.5rem;
+            }
+
+            .hero-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hero-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .hero-action {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .teachers-container {
+                padding: 0 1rem 1.5rem;
+            }
+
+            .stats-row,
+            .teachers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="hero-header">
+        <div class="hero-content">
+            <div>
+                <h1>
+                    <i class="fas fa-chalkboard-teacher"></i> Enseignants
+                </h1>
+                <p>Gérez votre équipe pédagogique</p>
+            </div>
+            <a href="{{ ea_url()
+                .setController('App\\Controller\\Admin\\TeacherCrudController')
+                .setAction('new') }}"
+               class="hero-action">
+                <i class="fas fa-plus"></i> Nouvel enseignant
+            </a>
+        </div>
+    </div>
+
+    <div class="teachers-container">
+        <!-- Statistics -->
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="stat-number">{{ entities|length }}</div>
+                <div class="stat-label">Total Enseignants</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">
+                    <i class="fas fa-school"></i>
+                </div>
+                <div class="stat-number">
+                    {% set schools = [] %}
+                    {% for entity in entities %}
+                        {% if entity.instance.school and entity.instance.school.id not in schools %}
+                            {% set schools = schools|merge([entity.instance.school.id]) %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ schools|length }}
+                </div>
+                <div class="stat-label">Écoles</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number">
+                    {% set totalGroups = 0 %}
+                    {% for entity in entities %}
+                        {% set totalGroups = totalGroups + entity.instance.studentGroups|length %}
+                    {% endfor %}
+                    {{ totalGroups }}
+                </div>
+                <div class="stat-label">Groupes</div>
+            </div>
+        </div>
+
+        <!-- Teachers Grid -->
+        {% if entities is empty %}
+            <div class="empty-state">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <p>Aucun enseignant enregistré</p>
+            </div>
+        {% else %}
+            <div class="teachers-grid">
+                {% for entity in entities %}
+                    {% set teacher = entity.instance %}
+                    <div class="teacher-card">
+                        <div class="teacher-header">
+                            <div class="teacher-avatar">
+                                {{ teacher.firstName|first }}{{ teacher.lastName|first }}
+                            </div>
+                            <div class="teacher-name">
+                                {{ teacher.firstName }} {{ teacher.lastName }}
+                            </div>
+                            <div class="teacher-school">
+                                <i class="fas fa-school"></i>
+                                {{ teacher.school ? teacher.school.name : 'Aucune école' }}
+                            </div>
+                        </div>
+
+                        <div class="teacher-body">
+                            {% if teacher.phone %}
+                                <div class="teacher-info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ teacher.phone }}</span>
+                                </div>
+                            {% endif %}
+
+                            {% if teacher.user %}
+                                <div class="teacher-info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>{{ teacher.user.username }}</span>
+                                </div>
+                            {% endif %}
+
+                            <div class="teacher-info-item">
+                                <i class="fas fa-users"></i>
+                                <span>
+                                    <span class="badge">
+                                        {{ teacher.studentGroups|length }} groupe(s)
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="teacher-footer">
+                            <a href="{{ ea_url()
+                                .setController('App\\Controller\\Admin\\TeacherCrudController')
+                                .setAction('detail')
+                                .setEntityId(teacher.id) }}"
+                               class="btn btn-primary">
+                                <i class="fas fa-eye"></i> Voir
+                            </a>
+                            <a href="{{ ea_url()
+                                .setController('App\\Controller\\Admin\\TeacherCrudController')
+                                .setAction('edit')
+                                .setEntityId(teacher.id) }}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,942 @@
+﻿{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    <h1 style="font-size: 2rem; font-weight: 700;">
+        <i class="fas fa-calendar-check"></i> Marquer les presences
+    </h1>
+    <p style="color: #64748b; margin-top: 0.5rem;">
+        Selectionnez l'ecole, le groupe, la matiere, les horaires et la date pour marquer les presences
+    </p>
+{% endblock %}
+
+{% block main %}
+    <style>
+        .attendance-container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .filter-section {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-select, .date-picker, .time-select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #ffffff;
+            width: 100%;
+        }
+
+        .filter-select:focus,
+        .date-picker:focus,
+        .time-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .time-selection {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .time-separator {
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .filter-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #cbd5e1;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .attendance-section {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .attendance-section.active {
+            display: block;
+        }
+
+        .attendance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .attendance-title h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .attendance-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .attendance-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .attendance-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            background: #f8fafc;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .attendance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 0.35rem;
+        }
+
+        .stat-card.present { background: #ecfdf5; border-color: #a7f3d0; }
+        .stat-card.absent { background: #fef2f2; border-color: #fecaca; }
+        .stat-card.late { background: #fffbeb; border-color: #fed7aa; }
+        .stat-card.excused { background: #eff6ff; border-color: #bfdbfe; }
+
+        .students-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .student-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 200px;
+            flex: 1;
+        }
+
+        .student-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .student-meta {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 0.15rem;
+        }
+
+        .status-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .status-btn {
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            border-radius: 8px;
+            padding: 0.45rem 0.9rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .status-btn.active.present {
+            background: #d1fae5;
+            border-color: #34d399;
+            color: #065f46;
+        }
+
+        .status-btn.active.absent {
+            background: #fee2e2;
+            border-color: #f87171;
+            color: #991b1b;
+        }
+
+        .status-btn.active.late {
+            background: #fef3c7;
+            border-color: #fbbf24;
+            color: #92400e;
+        }
+
+        .status-btn.active.excused {
+            background: #dbeafe;
+            border-color: #60a5fa;
+            color: #1e3a8a;
+        }
+
+        .attendance-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1.5rem;
+        }
+
+        .attendance-summary {
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .time-selection {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .attendance-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .attendance-actions {
+                justify-content: flex-start;
+            }
+
+            .student-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .attendance-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+
+    <div class="attendance-container">
+        <div class="filter-section">
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-school"></i>
+                        Ecole
+                    </label>
+                    <select id="schoolSelect" class="filter-select" onchange="loadGroups()">
+                        <option value="">-- Selectionner une ecole --</option>
+                        {% for school in schools %}
+                            <option value="{{ school.id }}">{{ school.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-users"></i>
+                        Groupe
+                    </label>
+                    <select id="groupSelect" class="filter-select" disabled onchange="enableSubjectSelect()">
+                        <option value="">-- Selectionner un groupe --</option>
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-book"></i>
+                        Matiere
+                    </label>
+                    <select id="subjectSelect" class="filter-select" disabled onchange="updateLoadButton()">
+                        <option value="">-- Selectionner une matiere --</option>
+                        <option value="Math">Mathematiques</option>
+                        <option value="French">Francais</option>
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-clock"></i>
+                        Horaire
+                    </label>
+                    <div class="time-selection">
+                        <select id="startTimeSelect" class="time-select" disabled onchange="handleStartTimeChange()">
+                            <option value="">Heure debut</option>
+                        </select>
+                        <div class="time-separator">-</div>
+                        <select id="endTimeSelect" class="time-select" disabled onchange="updateLoadButton()">
+                            <option value="">Heure fin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-calendar"></i>
+                        Date du cours
+                    </label>
+                    <input type="date" id="dateSelect" class="date-picker" value="{{ 'now'|date('Y-m-d') }}" onchange="updateLoadButton()">
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn btn-secondary" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i>
+                    Reinitialiser
+                </button>
+                <button id="loadBtn" class="btn btn-primary" disabled onclick="loadStudentsForAttendance()">
+                    <i class="fas fa-check"></i>
+                    Charger les etudiants
+                </button>
+            </div>
+        </div>
+
+        <div id="attendanceSection" class="attendance-section">
+            <div class="attendance-header">
+                <div class="attendance-title">
+                    <h2>Feuille de presence</h2>
+                    <div class="attendance-subtitle">
+                        <span id="groupName"></span>
+                    </div>
+                </div>
+                <div class="attendance-actions">
+                    <button class="btn btn-secondary" onclick="markAll('present')">Tout present</button>
+                    <button class="btn btn-secondary" onclick="markAll('absent')">Tout absent</button>
+                    <button class="btn btn-secondary" onclick="markAll('late')">Tout en retard</button>
+                    <button class="btn btn-secondary" onclick="markAll('excused')">Tout excuse</button>
+                </div>
+            </div>
+
+            <div class="attendance-meta">
+                <span class="meta-chip"><i class="fas fa-users"></i> <span id="studentCount">0</span> etudiants</span>
+                <span class="meta-chip"><i class="fas fa-book"></i> <span id="subjectName"></span></span>
+                <span class="meta-chip"><i class="fas fa-clock"></i> <span id="displayStartTime"></span> - <span id="displayEndTime"></span></span>
+                <span class="meta-chip"><i class="fas fa-calendar"></i> <span id="selectedDate"></span></span>
+            </div>
+
+            <div class="attendance-stats">
+                <div class="stat-card present">
+                    <div class="stat-label">Presents</div>
+                    <div class="stat-value" id="presentCount">0</div>
+                </div>
+                <div class="stat-card absent">
+                    <div class="stat-label">Absents</div>
+                    <div class="stat-value" id="absentCount">0</div>
+                </div>
+                <div class="stat-card late">
+                    <div class="stat-label">Retards</div>
+                    <div class="stat-value" id="lateCount">0</div>
+                </div>
+                <div class="stat-card excused">
+                    <div class="stat-label">Excuses</div>
+                    <div class="stat-value" id="excusedCount">0</div>
+                </div>
+            </div>
+
+            <div id="studentsList" class="students-list"></div>
+
+            <div class="attendance-footer">
+                <div class="attendance-summary">
+                    Total: <span id="totalCount">0</span> etudiants
+                </div>
+                <button class="btn btn-success" onclick="saveAttendance()">
+                    <i class="fas fa-save"></i>
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+            <i class="fas fa-calendar-check"></i>
+            <h3>Marquer les presences</h3>
+            <p>Selectionnez une ecole, un groupe et les horaires pour charger les etudiants.</p>
+        </div>
+    </div>
+
+    <script>
+        let studentsData = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTimeDropdowns();
+        });
+
+        function loadGroups() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupSelect = document.getElementById('groupSelect');
+
+            resetAttendanceView();
+            groupSelect.innerHTML = '<option value="">-- Selectionner un groupe --</option>';
+            groupSelect.disabled = true;
+
+            disableAfterGroup();
+
+            if (!schoolId) {
+                updateLoadButton();
+                return;
+            }
+
+            groupSelect.innerHTML = '<option value="">Chargement...</option>';
+
+            fetch(`/admin/api/groups-by-school/${schoolId}`)
+                .then(response => response.json())
+                .then(groups => {
+                    groupSelect.innerHTML = '<option value="">-- Selectionner un groupe --</option>';
+                    if (groups.length === 0) {
+                        groupSelect.innerHTML = '<option value="">Aucun groupe disponible</option>';
+                        updateLoadButton();
+                        return;
+                    }
+
+                    groups.forEach(group => {
+                        const option = document.createElement('option');
+                        option.value = group.id;
+                        option.textContent = group.name + (group.teacher ? ` (${group.teacher})` : '');
+                        groupSelect.appendChild(option);
+                    });
+
+                    groupSelect.disabled = false;
+                    updateLoadButton();
+                })
+                .catch(error => {
+                    console.error('Error loading groups:', error);
+                    groupSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                    updateLoadButton();
+                });
+        }
+
+        function enableSubjectSelect() {
+            const groupId = document.getElementById('groupSelect').value;
+            const subjectSelect = document.getElementById('subjectSelect');
+            const startTimeSelect = document.getElementById('startTimeSelect');
+            const endTimeSelect = document.getElementById('endTimeSelect');
+
+            if (!groupId) {
+                disableAfterGroup();
+                updateLoadButton();
+                return;
+            }
+
+            subjectSelect.disabled = false;
+            startTimeSelect.disabled = false;
+            endTimeSelect.disabled = false;
+            updateLoadButton();
+        }
+
+        function disableAfterGroup() {
+            document.getElementById('subjectSelect').value = '';
+            document.getElementById('subjectSelect').disabled = true;
+            document.getElementById('startTimeSelect').value = '';
+            document.getElementById('startTimeSelect').disabled = true;
+            document.getElementById('endTimeSelect').value = '';
+            document.getElementById('endTimeSelect').disabled = true;
+        }
+
+        function updateLoadButton() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const subject = document.getElementById('subjectSelect').value;
+            const startTime = document.getElementById('startTimeSelect').value;
+            const endTime = document.getElementById('endTimeSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            const loadBtn = document.getElementById('loadBtn');
+            const ready = schoolId && groupId && subject && startTime && endTime && date && isValidTimeRange(startTime, endTime);
+            loadBtn.disabled = !ready;
+        }
+
+        function handleStartTimeChange() {
+            updateEndTimeOptions();
+            updateLoadButton();
+        }
+
+        function timeToMinutes(time) {
+            const parts = time.split(':');
+            return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        }
+
+        function isValidTimeRange(startTime, endTime) {
+            if (!startTime || !endTime) {
+                return false;
+            }
+
+            return timeToMinutes(endTime) > timeToMinutes(startTime);
+        }
+
+        function generateTimeOptions() {
+            const times = [];
+            for (let hour = 8; hour <= 19; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    if (hour === 19 && minute > 0) {
+                        continue;
+                    }
+                    const hh = hour.toString().padStart(2, '0');
+                    const mm = minute.toString().padStart(2, '0');
+                    times.push(`${hh}:${mm}`);
+                }
+            }
+            return times;
+        }
+
+        function initializeTimeDropdowns() {
+            const startTimeSelect = document.getElementById('startTimeSelect');
+            startTimeSelect.innerHTML = '<option value="">Heure debut</option>';
+
+            const options = generateTimeOptions();
+            options.forEach(time => {
+                const option = document.createElement('option');
+                option.value = time;
+                option.textContent = time;
+                startTimeSelect.appendChild(option);
+            });
+
+            updateEndTimeOptions();
+        }
+
+        function updateEndTimeOptions() {
+            const startTimeSelect = document.getElementById('startTimeSelect');
+            const endTimeSelect = document.getElementById('endTimeSelect');
+            const startTime = startTimeSelect.value;
+            const options = generateTimeOptions();
+
+            endTimeSelect.innerHTML = '<option value="">Heure fin</option>';
+            options.forEach(time => {
+                if (!startTime || timeToMinutes(time) > timeToMinutes(startTime)) {
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    endTimeSelect.appendChild(option);
+                }
+            });
+
+            if (endTimeSelect.value && !isValidTimeRange(startTime, endTimeSelect.value)) {
+                endTimeSelect.value = '';
+            }
+        }
+
+        function loadStudentsForAttendance() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const subject = document.getElementById('subjectSelect').value;
+            const startTime = document.getElementById('startTimeSelect').value;
+            const endTime = document.getElementById('endTimeSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (!schoolId || !groupId || !subject || !startTime || !endTime || !date) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            if (!isValidTimeRange(startTime, endTime)) {
+                alert('L\'heure de fin doit etre apres l\'heure de debut');
+                return;
+            }
+
+            const studentsList = document.getElementById('studentsList');
+            studentsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Chargement des etudiants...</p>
+                </div>
+            `;
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('attendanceSection').classList.add('active');
+
+            const groupName = document.getElementById('groupSelect').selectedOptions[0].text;
+            document.getElementById('groupName').textContent = groupName;
+            document.getElementById('subjectName').textContent = document.getElementById('subjectSelect').selectedOptions[0].text;
+            document.getElementById('displayStartTime').textContent = startTime;
+            document.getElementById('displayEndTime').textContent = endTime;
+            document.getElementById('selectedDate').textContent = new Date(date).toLocaleDateString('fr-FR');
+
+            fetch(`/admin/api/students-by-group/${groupId}?schoolId=${schoolId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    displayAttendance(data.students || []);
+                })
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                    studentsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erreur: ${error.message}</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function displayAttendance(students) {
+            const studentsList = document.getElementById('studentsList');
+            studentsList.innerHTML = '';
+            studentsData = {};
+
+            if (!students || students.length === 0) {
+                studentsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users-slash"></i>
+                        <p>Aucun etudiant trouve dans ce groupe.</p>
+                    </div>
+                `;
+                updateCounts();
+                return;
+            }
+
+            students.forEach(student => {
+                const status = 'present';
+                studentsData[student.id] = {
+                    id: student.id,
+                    firstName: student.firstName,
+                    lastName: student.lastName,
+                    niveauScolaire: student.niveauScolaire || '',
+                    status: status
+                };
+
+                const row = document.createElement('div');
+                row.className = 'student-row';
+                row.dataset.studentId = student.id;
+
+                const info = document.createElement('div');
+                info.className = 'student-info';
+
+                const avatar = document.createElement('div');
+                avatar.className = 'student-avatar';
+                avatar.textContent = `${(student.firstName || '').charAt(0).toUpperCase()}${(student.lastName || '').charAt(0).toUpperCase()}`;
+
+                const details = document.createElement('div');
+
+                const name = document.createElement('div');
+                name.className = 'student-name';
+                name.textContent = `${student.firstName} ${student.lastName}`;
+
+                const meta = document.createElement('div');
+                meta.className = 'student-meta';
+                meta.textContent = student.niveauScolaire ? `Niveau: ${student.niveauScolaire}` : 'Niveau non defini';
+
+                details.appendChild(name);
+                details.appendChild(meta);
+                info.appendChild(avatar);
+                info.appendChild(details);
+
+                const actions = document.createElement('div');
+                actions.className = 'status-buttons';
+
+                const statuses = [
+                    { key: 'present', label: 'Present' },
+                    { key: 'absent', label: 'Absent' },
+                    { key: 'late', label: 'Retard' },
+                    { key: 'excused', label: 'Excuse' }
+                ];
+
+                statuses.forEach(item => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = `status-btn ${item.key} ${item.key === status ? 'active' : ''}`;
+                    button.dataset.status = item.key;
+                    button.textContent = item.label;
+                    button.addEventListener('click', () => setStudentStatus(student.id, item.key));
+                    actions.appendChild(button);
+                });
+
+                row.appendChild(info);
+                row.appendChild(actions);
+                studentsList.appendChild(row);
+            });
+
+            updateCounts();
+        }
+
+        function setStudentStatus(studentId, status) {
+            if (!studentsData[studentId]) {
+                return;
+            }
+
+            studentsData[studentId].status = status;
+
+            const row = document.querySelector(`[data-student-id="${studentId}"]`);
+            if (row) {
+                row.querySelectorAll('.status-btn').forEach(button => {
+                    const isActive = button.dataset.status === status;
+                    button.classList.toggle('active', isActive);
+                });
+            }
+
+            updateCounts();
+        }
+
+        function markAll(status) {
+            Object.keys(studentsData).forEach(studentId => {
+                setStudentStatus(studentId, status);
+            });
+        }
+
+        function updateCounts() {
+            const counts = {
+                present: 0,
+                absent: 0,
+                late: 0,
+                excused: 0
+            };
+
+            Object.values(studentsData).forEach(student => {
+                if (counts[student.status] !== undefined) {
+                    counts[student.status] += 1;
+                }
+            });
+
+            document.getElementById('presentCount').textContent = counts.present;
+            document.getElementById('absentCount').textContent = counts.absent;
+            document.getElementById('lateCount').textContent = counts.late;
+            document.getElementById('excusedCount').textContent = counts.excused;
+            document.getElementById('studentCount').textContent = Object.keys(studentsData).length;
+            document.getElementById('totalCount').textContent = Object.keys(studentsData).length;
+        }
+
+        function saveAttendance() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const subject = document.getElementById('subjectSelect').value;
+            const startTime = document.getElementById('startTimeSelect').value;
+            const endTime = document.getElementById('endTimeSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (!schoolId || !groupId || !subject || !startTime || !endTime || !date) {
+                alert('Veuillez selectionner tous les criteres');
+                return;
+            }
+
+            if (!isValidTimeRange(startTime, endTime)) {
+                alert('L\'heure de fin doit etre apres l\'heure de debut');
+                return;
+            }
+
+            if (Object.keys(studentsData).length === 0) {
+                alert('Aucun etudiant a enregistrer');
+                return;
+            }
+
+            const attendanceData = {};
+            Object.keys(studentsData).forEach(studentId => {
+                attendanceData[studentId] = studentsData[studentId].status;
+            });
+
+            fetch('/admin/api/save-custom-attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    schoolId: schoolId,
+                    groupId: groupId,
+                    subject: subject,
+                    startTime: startTime,
+                    endTime: endTime,
+                    date: date,
+                    attendance: attendanceData
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let message = 'Presences enregistrees avec succes.';
+                        if (data.errors && data.errors.length > 0) {
+                            message += `\nErreurs: ${data.errors.join(', ')}`;
+                        }
+                        alert(message);
+                    } else {
+                        alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Erreur lors de l\'enregistrement: ' + error.message);
+                });
+        }
+
+        function resetAttendanceView() {
+            document.getElementById('attendanceSection').classList.remove('active');
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('studentsList').innerHTML = '';
+            document.getElementById('groupName').textContent = '';
+            document.getElementById('subjectName').textContent = '';
+            document.getElementById('displayStartTime').textContent = '';
+            document.getElementById('displayEndTime').textContent = '';
+            document.getElementById('selectedDate').textContent = '';
+            studentsData = {};
+            updateCounts();
+        }
+
+        function resetFilters() {
+            document.getElementById('schoolSelect').value = '';
+            document.getElementById('groupSelect').innerHTML = '<option value="">-- Selectionner un groupe --</option>';
+            document.getElementById('groupSelect').disabled = true;
+            document.getElementById('subjectSelect').value = '';
+            document.getElementById('subjectSelect').disabled = true;
+            document.getElementById('startTimeSelect').value = '';
+            document.getElementById('startTimeSelect').disabled = true;
+            document.getElementById('endTimeSelect').value = '';
+            document.getElementById('endTimeSelect').disabled = true;
+            document.getElementById('loadBtn').disabled = true;
+            resetAttendanceView();
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Enseignant</title>
+
+    {# Tailwind CSS CDN #}
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    {# Bootstrap Icons #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .sidebar-collapsed {
+            width: 6.5rem;
+        }
+        .sidebar-expanded {
+            width: 18rem;
+        }
+        .logo-image {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+        .logo-fallback {
+            display: none;
+        }
+        #sidebar {
+            transition: width 0.3s ease-in-out;
+        }
+        .nav-text, .nav-dot, #logo-text, #profile-info {
+            transition: opacity 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+<div class="flex h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <aside id="sidebar"
+           class="sidebar-collapsed bg-white shadow-lg flex flex-col border-r border-gray-100"
+           onmouseenter="expandSidebar()"
+           onmouseleave="collapseSidebar()">
+
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3" id="logo-section">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <!-- Image du logo - remplacez le src par le chemin de votre logo -->
+                        <img src="{{ asset('image/logo.png') }}"
+                             alt="Logo Fondation"
+                             class="logo-image"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <!-- Fallback si l'image n'existe pas -->
+
+                    </div>
+                    <div id="logo-text" style="opacity: 0; display: none;">
+                        <h1 class="font-bold text-lg text-gray-800 leading-tight whitespace-nowrap">Fondation</h1>
+                        <p class="text-xs font-semibold text-amber-600 whitespace-nowrap">Omar Ibn Abdelaziz</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 py-6 px-3 overflow-hidden">
+            <div class="space-y-2">
+                <a href="{{ path('teacher_dashboard') }}"
+                   class="nav-link w-full flex items-center justify-center px-3 py-3.5 rounded-xl text-sm font-medium transition-all duration-200
+                          {% if app.request.get('_route') == 'teacher_dashboard' %}
+                              bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
+                          {% else %}
+                              text-gray-700 hover:bg-sky-50 hover:text-sky-700
+                          {% endif %}">
+                    <i class="bi bi-speedometer2 text-lg w-5 flex-shrink-0"></i>
+                    <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Dashboard</span>
+                    {% if app.request.get('_route') == 'teacher_dashboard' %}
+                        <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
+                    {% endif %}
+                </a>
+
+                <a href="{{ path('teacher_my_groups') }}"
+                   class="nav-link w-full flex items-center justify-center px-3 py-3.5 rounded-xl text-sm font-medium transition-all duration-200
+                          {% if app.request.get('_route') == 'teacher_my_groups' %}
+                              bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
+                          {% else %}
+                              text-gray-700 hover:bg-sky-50 hover:text-sky-700
+                          {% endif %}">
+                    <i class="bi bi-journal-bookmark text-lg w-5 flex-shrink-0"></i>
+                    <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Classes</span>
+                    {% if app.request.get('_route') == 'teacher_my_groups' %}
+                        <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
+                    {% endif %}
+                </a>
+
+                <a href="{{ path('teacher_my_students') }}"
+                   class="nav-link w-full flex items-center justify-center px-3 py-3.5 rounded-xl text-sm font-medium transition-all duration-200
+                          {% if app.request.get('_route') == 'teacher_my_students' %}
+                              bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
+                          {% else %}
+                              text-gray-700 hover:bg-sky-50 hover:text-sky-700
+                          {% endif %}">
+                    <i class="bi bi-people text-lg w-5 flex-shrink-0"></i>
+                    <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Élèves</span>
+                    {% if app.request.get('_route') == 'teacher_my_students' %}
+                        <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
+                    {% endif %}
+                </a>
+
+                <a href="{{ path('teacher_attendance_mark') }}"
+                   class="nav-link w-full flex items-center justify-center px-3 py-3.5 rounded-xl text-sm font-medium transition-all duration-200
+                          {% if app.request.get('_route') == 'teacher_attendance_mark' %}
+                              bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
+                          {% else %}
+                              text-gray-700 hover:bg-sky-50 hover:text-sky-700
+                          {% endif %}">
+                    <i class="bi bi-clipboard-check text-lg w-5 flex-shrink-0"></i>
+                    <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Présence</span>
+                    {% if app.request.get('_route') == 'teacher_attendance_mark' %}
+                        <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
+                    {% endif %}
+                </a>
+
+                <a href="{{ path('teacher_attendance_history') }}"
+                   class="nav-link w-full flex items-center justify-center px-3 py-3.5 rounded-xl text-sm font-medium transition-all duration-200
+                          {% if app.request.get('_route') == 'teacher_attendance_history' %}
+                              bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
+                          {% else %}
+                              text-gray-700 hover:bg-sky-50 hover:text-sky-700
+                          {% endif %}">
+                    <i class="bi bi-clock-history text-lg w-5 flex-shrink-0"></i>
+                    <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Historique</span>
+                    {% if app.request.get('_route') == 'teacher_attendance_history' %}
+                        <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
+                    {% endif %}
+                </a>
+            </div>
+        </nav>
+
+        <!-- Footer -->
+        <div class="border-t border-gray-100 p-4 space-y-3">
+            <a href="{{ path('teacher_settings') }}"
+               class="nav-link w-full flex items-center justify-center px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200
+                      {% if app.request.get('_route') == 'teacher_settings' %}
+                          bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
+                      {% else %}
+                          text-gray-700 hover:bg-sky-50 hover:text-sky-700
+                      {% endif %}">
+                <i class="bi bi-gear text-lg w-5 flex-shrink-0"></i>
+                <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Parametres</span>
+                {% if app.request.get('_route') == 'teacher_settings' %}
+                    <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
+                {% endif %}
+            </a>
+
+            <!-- Logout Button -->
+            <a href="{{ path('app_logout') }}"
+               class="logout-btn w-full flex items-center justify-center px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-red-600 hover:bg-red-50 hover:text-red-700 no-underline">
+                <i class="bi bi-box-arrow-right text-lg w-5 flex-shrink-0"></i>
+                <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Déconnexion</span>
+            </a>
+
+            <!-- Profile -->
+            <div class="flex items-center space-x-3 pt-3 border-t border-gray-100" id="profile-section">
+                <div class="w-11 h-11 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center ring-2 ring-amber-400 ring-offset-2 flex-shrink-0">
+                    <span class="text-white font-bold text-sm">
+                        {{ app.user.teacher.firstName|first|upper }}{{ app.user.teacher.lastName|first|upper }}
+                    </span>
+                </div>
+                <div class="flex-1 min-w-0" id="profile-info" style="opacity: 0; display: none;">
+                    <p class="text-sm font-semibold text-gray-800 truncate whitespace-nowrap">
+                        {{ app.user.teacher.firstName }} {{ app.user.teacher.lastName }}
+                    </p>
+                    <p class="text-xs text-amber-700 truncate whitespace-nowrap">Enseignant</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto">
+        {% block body %}{% endblock %}
+    </main>
+</div>
+
+<script>
+    function expandSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const logoText = document.getElementById('logo-text');
+        const profileInfo = document.getElementById('profile-info');
+        const navTexts = document.querySelectorAll('.nav-text');
+        const navDots = document.querySelectorAll('.nav-dot');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // Ouvrir la sidebar
+        sidebar.classList.remove('sidebar-collapsed');
+        sidebar.classList.add('sidebar-expanded');
+
+        // Afficher les textes avec un petit délai pour une animation fluide
+        setTimeout(() => {
+            logoText.style.display = 'block';
+            profileInfo.style.display = 'block';
+            navTexts.forEach(text => text.style.display = 'inline');
+            navDots.forEach(dot => dot.style.display = 'block');
+
+            setTimeout(() => {
+                logoText.style.opacity = '1';
+                profileInfo.style.opacity = '1';
+                navTexts.forEach(text => text.style.opacity = '1');
+                navDots.forEach(dot => dot.style.opacity = '1');
+            }, 50);
+        }, 100);
+
+        navLinks.forEach(link => {
+            link.classList.remove('justify-center');
+            link.classList.remove('px-3');
+            link.classList.add('px-4');
+        });
+    }
+
+    function collapseSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const logoText = document.getElementById('logo-text');
+        const profileInfo = document.getElementById('profile-info');
+        const navTexts = document.querySelectorAll('.nav-text');
+        const navDots = document.querySelectorAll('.nav-dot');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // Masquer les textes
+        logoText.style.opacity = '0';
+        profileInfo.style.opacity = '0';
+        navTexts.forEach(text => text.style.opacity = '0');
+        navDots.forEach(dot => dot.style.opacity = '0');
+
+        setTimeout(() => {
+            logoText.style.display = 'none';
+            profileInfo.style.display = 'none';
+            navTexts.forEach(text => text.style.display = 'none');
+            navDots.forEach(dot => dot.style.display = 'none');
+
+            // Fermer la sidebar
+            sidebar.classList.remove('sidebar-expanded');
+            sidebar.classList.add('sidebar-collapsed');
+
+            navLinks.forEach(link => {
+                link.classList.add('justify-center');
+                link.classList.add('px-3');
+                link.classList.remove('px-4');
+            });
+        }, 200);
+    }
+</script>
+
+</body>
+</html>

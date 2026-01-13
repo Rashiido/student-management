@@ -1,0 +1,839 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Écoles{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .hero-header {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .hero-content p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .hero-action {
+            padding: 0.95rem 1.75rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ffffff;
+            color: #0284C7;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.4);
+            color: #0284C7;
+        }
+
+        .schools-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+
+        .school-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .school-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+            border-color: transparent;
+        }
+
+        .school-header {
+            padding: 1.75rem 2rem;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .school-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0);
+            transition: background 0.25s;
+        }
+
+        .school-header:hover::before {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .school-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.01em;
+        }
+
+        .school-meta {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .school-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .expand-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .school-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .school-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .school-card.expanded .school-content {
+            max-height: 10000px;
+        }
+
+        .school-body {
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            z-index: 2;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+            border-color: transparent;
+        }
+
+        .stat-box.blue::after {
+            background: linear-gradient(to right, #3b82f6 0%, #2563eb 100%);
+        }
+        .stat-box.green::after {
+            background: linear-gradient(to right, #10b981 0%, #059669 100%);
+        }
+        .stat-box.purple::after {
+            background: linear-gradient(to right, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1rem;
+            color: #ffffff;
+        }
+
+        .stat-box.blue .stat-icon {
+            background: linear-gradient(to right, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .stat-box.green .stat-icon {
+            background: linear-gradient(to right, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .stat-box.purple .stat-icon {
+            background: linear-gradient(to right, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-box.blue .stat-number { color: #3b82f6; }
+        .stat-box.green .stat-number { color: #10b981; }
+        .stat-box.purple .stat-number { color: #8b5cf6; }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .teachers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .teacher-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .teacher-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.2);
+            border-color: transparent;
+        }
+
+        .teacher-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .teacher-info {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .teacher-info div {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .groups-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .group-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .group-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+            border-color: transparent;
+        }
+
+        .group-header {
+            padding: 1.5rem 1.75rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .group-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0);
+            transition: background 0.25s;
+        }
+
+        .group-header:hover::before {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .group-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .group-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .group-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .group-card.expanded .group-content {
+            max-height: 5000px;
+        }
+
+        .group-body {
+            padding: 1.75rem;
+            background: #f8fafc;
+        }
+
+        .students-list {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .students-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .students-list-header h4 {
+            margin: 0;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .student-item:hover {
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .student-item:last-child {
+            border-bottom: none;
+        }
+
+        .student-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .student-level {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .hero-header {
+                padding: 1.5rem;
+            }
+
+            .hero-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hero-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .hero-action {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .schools-container {
+                padding: 0 1rem 1.5rem;
+            }
+
+            .school-header,
+            .group-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .school-meta,
+            .group-stats {
+                width: 100%;
+            }
+
+            .stats-row,
+            .teachers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="hero-header">
+        <div class="hero-content">
+            <div>
+                <h1>
+                    <i class="fas fa-school"></i> Écoles
+                </h1>
+                <p>Gérez vos établissements et leurs équipes</p>
+            </div>
+            <a href="{{ ea_url()
+                .setController('App\\Controller\\Admin\\SchoolCrudController')
+                .setAction('new') }}"
+               class="hero-action">
+                <i class="fas fa-plus"></i> Nouvelle école
+            </a>
+        </div>
+    </div>
+
+    <div class="schools-container">
+        {% if entities is empty %}
+            <div class="empty-state">
+                <i class="fas fa-school"></i>
+                <p>Aucune école enregistrée</p>
+            </div>
+        {% else %}
+            {% for entity in entities %}
+                {% set school = entity.instance %}
+                <div class="school-card" id="school-{{ school.id }}">
+                    <div class="school-header" onclick="toggleSchool({{ school.id }})">
+                        <div class="school-title">
+                            <i class="fas fa-school"></i>
+                            {{ school.name }}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 2rem;">
+                            <div class="school-meta">
+                                <div class="school-meta-item">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    <span>{{ school.teachers|length }} enseignants</span>
+                                </div>
+                                <div class="school-meta-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ school.studentGroups|length }} groupes</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-down expand-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="school-content">
+                        <div class="school-body">
+                            <!-- Statistics -->
+                            <div class="stats-row">
+                                <div class="stat-box blue">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                    </div>
+                                    <div class="stat-number">{{ school.teachers|length }}</div>
+                                    <div class="stat-label">Enseignants</div>
+                                </div>
+                                <div class="stat-box green">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="stat-number">{{ school.studentGroups|length }}</div>
+                                    <div class="stat-label">Groupes</div>
+                                </div>
+                                <div class="stat-box purple">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </div>
+                                    <div class="stat-number">
+                                        {% set totalStudents = 0 %}
+                                        {% for group in school.studentGroups %}
+                                            {% set totalStudents = totalStudents + group.students|length %}
+                                        {% endfor %}
+                                        {{ totalStudents }}
+                                    </div>
+                                    <div class="stat-label">Étudiants</div>
+                                </div>
+                            </div>
+
+                            <!-- Teachers Section -->
+                            <div class="section">
+                                <div class="section-header">
+                                    <div class="section-title">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                        Enseignants
+                                    </div>
+                                    <a href="{{ ea_url()
+                                        .setController('App\\Controller\\Admin\\TeacherCrudController')
+                                        .setAction('new') }}"
+                                       class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Nouvel enseignant
+                                    </a>
+                                </div>
+                                {% if school.teachers is empty %}
+                                    <div class="empty-state">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                        <p>Aucun enseignant assigné</p>
+                                    </div>
+                                {% else %}
+                                    <div class="teachers-grid">
+                                        {% for teacher in school.teachers %}
+                                            <div class="teacher-card">
+                                                <div class="teacher-name">
+                                                    <i class="fas fa-user"></i>
+                                                    {{ teacher.firstName }} {{ teacher.lastName }}
+                                                </div>
+                                                <div class="teacher-info">
+                                                    {% if teacher.phone %}
+                                                        <div><i class="fas fa-phone"></i> {{ teacher.phone }}</div>
+                                                    {% endif %}
+                                                    <div><i class="fas fa-school"></i> {{ school.name }}</div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Groups Section -->
+                            <div class="section">
+                                <div class="section-header">
+                                    <div class="section-title">
+                                        <i class="fas fa-users"></i>
+                                        Groupes d'étudiants
+                                    </div>
+                                    <a href="{{ ea_url()
+                                        .setController('App\\Controller\\Admin\\StudentGroupCrudController')
+                                        .setAction('new') }}"
+                                       class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Nouveau groupe
+                                    </a>
+                                </div>
+                                {% if school.studentGroups is empty %}
+                                    <div class="empty-state">
+                                        <i class="fas fa-users"></i>
+                                        <p>Aucun groupe créé</p>
+                                    </div>
+                                {% else %}
+                                    <div class="groups-container">
+                                        {% for group in school.studentGroups %}
+                                            <div class="group-card" id="group-{{ group.id }}">
+                                                <div class="group-header" onclick="toggleGroup({{ group.id }})">
+                                                    <div class="group-name">
+                                                        <i class="fas fa-users"></i>
+                                                        {{ group.name }}
+                                                    </div>
+                                                    <div style="display: flex; align-items: center; gap: 2rem;">
+                                                        <div class="group-stats">
+                                                            <span>
+                                                                <i class="fas fa-user-graduate"></i>
+                                                                {{ group.students|length }} étudiants
+                                                            </span>
+                                                        </div>
+                                                        <i class="fas fa-chevron-down expand-icon"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="group-content">
+                                                    <div class="group-body">
+                                                        <div class="students-list">
+                                                            <div class="students-list-header">
+                                                                <h4>
+                                                                    <i class="fas fa-user-graduate"></i>
+                                                                    Liste des étudiants
+                                                                </h4>
+                                                                <a href="{{ ea_url()
+                                                                    .setController('App\\Controller\\Admin\\StudentCrudController')
+                                                                    .setAction('new') }}"
+                                                                   class="btn btn-secondary">
+                                                                    <i class="fas fa-plus"></i> Ajouter
+                                                                </a>
+                                                            </div>
+                                                            {% if group.students is empty %}
+                                                                <div class="empty-state">
+                                                                    <i class="fas fa-user-graduate"></i>
+                                                                    <p>Aucun étudiant dans ce groupe</p>
+                                                                </div>
+                                                            {% else %}
+                                                                {% for student in group.students %}
+                                                                    <div class="student-item">
+                                                                        <div class="student-avatar">
+                                                                            {{ student.firstName|first }}{{ student.lastName|first }}
+                                                                        </div>
+                                                                        <div class="student-info">
+                                                                            <div class="student-name">
+                                                                                {{ student.firstName }} {{ student.lastName }}
+                                                                            </div>
+                                                                            <div class="student-level">
+                                                                                {% if student.dateOfBirth %}
+                                                                                    Né(e) le {{ student.dateOfBirth|date('d/m/Y') }}
+                                                                                {% endif %}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleSchool(schoolId) {
+            const card = document.getElementById('school-' + schoolId);
+            card.classList.toggle('expanded');
+        }
+
+        function toggleGroup(groupId) {
+            const card = document.getElementById('group-' + groupId);
+            card.classList.toggle('expanded');
+            event.stopPropagation();
+        }
+    </script>
+{% endblock %}

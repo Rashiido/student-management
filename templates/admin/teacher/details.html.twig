@@ -1,0 +1,574 @@
+{# templates/admin/teacher/detail.html.twig #}
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ entity.instance.firstName }} {{ entity.instance.lastName }} - Détails{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .teacher-detail-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+
+        .teacher-header {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            color: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .teacher-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .teacher-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .teacher-header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .teacher-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 3rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .teacher-header-info h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .teacher-header-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .header-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-meta-item i {
+            font-size: 1.25rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .info-item i {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .info-item-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1.05rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .credentials-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #fbbf24;
+        }
+
+        .credentials-card h2 {
+            color: #92400e;
+        }
+
+        .credential-item {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid #f59e0b;
+        }
+
+        .credential-label {
+            font-size: 0.85rem;
+            color: #92400e;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .credential-value {
+            font-size: 1.1rem;
+            color: #1e293b;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            background: #fef3c7;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px dashed #f59e0b;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #92400e;
+            font-weight: 500;
+        }
+
+        .warning-box i {
+            font-size: 1.5rem;
+            color: #f59e0b;
+        }
+
+        .groups-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .groups-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .group-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .group-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+        }
+
+        .group-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.15);
+            border-color: transparent;
+        }
+
+        .group-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .group-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.95rem 1.75rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .teacher-detail-container {
+                padding: 0 1rem 1.5rem;
+            }
+
+            .teacher-header {
+                padding: 1.75rem;
+            }
+
+            .teacher-header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .teacher-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .groups-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="teacher-detail-container">
+        <!-- Teacher Header -->
+        <div class="teacher-header">
+            <div class="teacher-header-content">
+                <div class="teacher-avatar-large">
+                    {{ entity.instance.firstName|first }}{{ entity.instance.lastName|first }}
+                </div>
+                <div class="teacher-header-info">
+                    <h1>{{ entity.instance.firstName }} {{ entity.instance.lastName }}</h1>
+                    <div class="teacher-header-meta">
+                        {% if entity.instance.school %}
+                            <div class="header-meta-item">
+                                <i class="fas fa-school"></i>
+                                <span>{{ entity.instance.school.name }}</span>
+                            </div>
+                        {% endif %}
+                        {% if entity.instance.phone %}
+                            <div class="header-meta-item">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ entity.instance.phone }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="header-meta-item">
+                            <i class="fas fa-users"></i>
+                            <span>{{ entity.instance.studentGroups|length }} groupe(s)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Personal Information -->
+            <div>
+                <div class="info-card">
+                    <h2>
+                        <i class="fas fa-id-card"></i>
+                        Informations personnelles
+                    </h2>
+
+                    <div class="info-item">
+                        <i class="fas fa-user"></i>
+                        <div class="info-item-content">
+                            <div class="info-label">Prénom</div>
+                            <div class="info-value">{{ entity.instance.firstName }}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i class="fas fa-user"></i>
+                        <div class="info-item-content">
+                            <div class="info-label">Nom</div>
+                            <div class="info-value">{{ entity.instance.lastName }}</div>
+                        </div>
+                    </div>
+
+                    {% if entity.instance.phone %}
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <div class="info-item-content">
+                                <div class="info-label">Téléphone</div>
+                                <div class="info-value">{{ entity.instance.phone }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if entity.instance.school %}
+                        <div class="info-item">
+                            <i class="fas fa-school"></i>
+                            <div class="info-item-content">
+                                <div class="info-label">École</div>
+                                <div class="info-value">{{ entity.instance.school.name }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Login Credentials -->
+                {% if entity.instance.user %}
+                    <div class="info-card credentials-card" style="margin-top: 1.5rem;">
+                        <h2>
+                            <i class="fas fa-key"></i>
+                            Informations de connexion
+                        </h2>
+
+                        <div class="credential-item">
+                            <div class="credential-label">
+                                <i class="fas fa-user-circle"></i> Nom d'utilisateur
+                            </div>
+                            <div class="credential-value">
+                                {{ entity.instance.user.username }}
+                            </div>
+                        </div>
+
+                        <div class="credential-item">
+                            <div class="credential-label">
+                                <i class="fas fa-lock"></i> Mot de passe
+                            </div>
+                            <div class="credential-value">
+                                {% if entity.instance.user.plainPassword %}
+                                    {{ entity.instance.user.plainPassword }}
+                                {% else %}
+                                    ••••••••
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="warning-box">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Veuillez noter ces identifiants. Le mot de passe ne sera plus visible après cette session.</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Groups Section -->
+            <div>
+                <div class="groups-section">
+                    <h2>
+                        <i class="fas fa-users"></i>
+                        Groupes assignés
+                    </h2>
+
+                    {% if entity.instance.studentGroups is empty %}
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <p>Aucun groupe assigné à cet enseignant</p>
+                        </div>
+                    {% else %}
+                        <div class="groups-grid">
+                            {% for group in entity.instance.studentGroups %}
+                                <div class="group-card">
+                                    <div class="group-name">
+                                        <i class="fas fa-users"></i>
+                                        {{ group.name }}
+                                    </div>
+                                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                        <i class="fas fa-school"></i>
+                                        {{ group.school.name }}
+                                    </div>
+                                    <div class="group-stats">
+                                        <span class="badge">
+                                            <i class="fas fa-user-graduate"></i>
+                                            {{ group.students|length }} étudiant(s)
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ ea_url()
+                .setController('App\\Controller\\Admin\\TeacherCrudController')
+                .setAction('edit')
+                .setEntityId(entity.instance.id) }}"
+               class="btn btn-primary">
+                <i class="fas fa-edit"></i> Modifier cet enseignant
+            </a>
+            <a href="{{ ea_url()
+                .setController('App\\Controller\\Admin\\TeacherCrudController')
+                .setAction('index') }}"
+               class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+{% endblock %}

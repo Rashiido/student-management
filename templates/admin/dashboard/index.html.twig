@@ -1,0 +1,495 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de bord - Administration{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-wrapper {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .admin-hero {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .admin-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .admin-page-header {
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-page-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.02em;
+        }
+
+        .admin-page-header p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            height: 100%;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(59, 130, 246, 0.02);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 0;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: transparent;
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .stat-card-body {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            z-index: 2;
+            background: linear-gradient(to right, #3b82f6 0%, #f97316 100%);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            color: #06b6d4;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .stat-card-footer {
+            padding: 0.875rem 1.5rem;
+            background: #f8fafc;
+            border-top: 2px solid #e2e8f0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card-footer a {
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0.65rem 1.25rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .stat-card-footer a:hover {
+            transform: translateY(-2px);
+            background: #0891b2;
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .content-card-header {
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(to right, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content-card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .content-card-header .badge {
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: #ffffff;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .content-card-body {
+            padding: 1.5rem;
+        }
+
+        .table-modern {
+            width: 100%;
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-modern thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.25rem;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .table-modern tbody td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        .table-modern tbody tr {
+            transition: all 0.2s;
+        }
+
+        .table-modern tbody tr:hover {
+            background: rgba(6, 182, 212, 0.03);
+        }
+
+        .table-modern tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge-custom {
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-hours {
+            background: linear-gradient(to right, #64748b 0%, #475569 100%);
+            color: #ffffff;
+        }
+
+        .badge-day {
+            color: #ffffff;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+        }
+
+        .badge-day.saturday { background: linear-gradient(to right, #10b981 0%, #059669 100%); }
+        .badge-day.sunday { background: linear-gradient(to right, #3b82f6 0%, #2563eb 100%); }
+        .badge-day.monday { background: linear-gradient(to right, #64748b 0%, #475569 100%); }
+        .badge-day.tuesday { background: linear-gradient(to right, #f59e0b 0%, #d97706 100%); }
+        .badge-day.wednesday { background: linear-gradient(to right, #06b6d4 0%, #0891b2 100%); }
+        .badge-day.thursday { background: linear-gradient(to right, #1f2937 0%, #111827 100%); }
+        .badge-day.friday { background: linear-gradient(to right, #ef4444 0%, #dc2626 100%); }
+
+        .badge-time {
+            background: linear-gradient(to right, #64748b 0%, #475569 100%);
+            color: #ffffff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .table-footer-info {
+            text-align: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-top: 2px solid #e2e8f0;
+            color: #64748b;
+            font-size: 0.85rem;
+            border-radius: 0 0 16px 16px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-wrapper {
+                padding: 1rem;
+            }
+
+            .admin-hero {
+                padding: 1.5rem;
+            }
+
+            .admin-page-header h2 {
+                font-size: 1.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .content-card-body {
+                padding: 1rem;
+                overflow-x: auto;
+            }
+
+            .table-modern {
+                font-size: 0.85rem;
+            }
+
+            .table-modern thead th,
+            .table-modern tbody td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-wrapper">
+        <div class="admin-hero">
+            <div class="admin-page-header">
+                <div>
+                    <h2>Tableau de bord - Administration</h2>
+                    <p>Vue d'ensemble de votre plateforme éducative</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-body">
+                    <div class="stat-icon">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <div class="stat-label">Écoles</div>
+                    <div class="stat-value">{{ stats.schools }}</div>
+                    <div class="stat-change">Établissements actifs</div>
+                </div>
+                <div class="stat-card-footer">
+                    <a href="{{ ea_url().setController('App\\Controller\\Admin\\SchoolCrudController') }}">
+                        Voir toutes les écoles
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-body">
+                    <div class="stat-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="stat-label">Enseignants</div>
+                    <div class="stat-value">{{ stats.teachers }}</div>
+                    <div class="stat-change">Professeurs inscrits</div>
+                </div>
+                <div class="stat-card-footer">
+                    <a href="{{ ea_url().setController('App\\Controller\\Admin\\TeacherCrudController') }}">
+                        Voir tous les enseignants
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-body">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-label">Groupes</div>
+                    <div class="stat-value">{{ stats.groups }}</div>
+                    <div class="stat-change">Classes organisées</div>
+                </div>
+                <div class="stat-card-footer">
+                    <a href="{{ ea_url().setController('App\\Controller\\Admin\\StudentGroupCrudController') }}">
+                        Voir tous les groupes
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-body">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="stat-label">Étudiants</div>
+                    <div class="stat-value">{{ stats.students }}</div>
+                    <div class="stat-change">Élèves inscrits</div>
+                </div>
+                <div class="stat-card-footer">
+                    <a href="{{ ea_url().setController('App\\Controller\\Admin\\StudentCrudController') }}">
+                        Voir tous les étudiants
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>
+                    <i class="fas fa-clock"></i>
+                    Heures enseignants
+                </h3>
+                <span class="badge">Mois {{ teacherHoursMonth }}</span>
+            </div>
+            <div class="content-card-body">
+                {% if teacherHours is empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Aucune donnée disponible</p>
+                    </div>
+                {% else %}
+                    <table class="table-modern">
+                        <thead>
+                        <tr>
+                            <th>Enseignant</th>
+                            <th>Heures</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in teacherHours %}
+                            <tr>
+                                <td>{{ item.teacher.firstName }} {{ item.teacher.lastName }}</td>
+                                <td>
+                                        <span class="badge-custom badge-hours">
+                                            {{ item.hours|number_format(1, '.', '') }}h
+                                        </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>
+                    <i class="fas fa-calendar-alt"></i>
+                    Planning des enseignants
+                </h3>
+                <span class="badge">{{ staticSchedule|length }} cours</span>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

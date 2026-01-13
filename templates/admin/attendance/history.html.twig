@@ -1,0 +1,1245 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Historique des Présences{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .hero-header {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .hero-content p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .history-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+
+        /* Filters Section */
+        .filter-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .filter-label i {
+            color: #0EA5E9;
+        }
+
+        .filter-select, .filter-input {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .filter-select:disabled {
+            background: #f8fafc;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .filter-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        /* Subject Sections */
+        .subject-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .subject-section:hover {
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.15);
+        }
+
+        .subject-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .subject-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .subject-icon.math { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .subject-icon.french { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+
+        .subject-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            flex: 1;
+            letter-spacing: -0.01em;
+        }
+
+        .subject-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .subject-stat {
+            text-align: center;
+        }
+
+        .subject-stat-number {
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .subject-stat-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Table Styles */
+        .history-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .history-table th {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-weight: 700;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .history-table th:first-child {
+            border-top-left-radius: 12px;
+        }
+
+        .history-table th:last-child {
+            border-top-right-radius: 12px;
+        }
+
+        .history-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .history-table tbody tr {
+            transition: all 0.2s;
+        }
+
+        .history-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .status-badge.present {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .status-badge.absent {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+        }
+
+        .status-badge.late {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        .status-badge.excused {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+
+        .status-badge.no-data {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 2px dashed #cbd5e1;
+        }
+
+        /* Empty State for Subject */
+        .subject-empty {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .subject-empty i {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: #64748b;
+        }
+
+        .loading-spinner {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: #0EA5E9;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: #64748b;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .empty-state i {
+            font-size: 5rem;
+            opacity: 0.2;
+            margin-bottom: 1.5rem;
+            display: block;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        /* No Attendance State */
+        .no-attendance-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .no-attendance-state .subject-icon {
+            margin: 0 auto 1.5rem;
+            width: 100px;
+            height: 100px;
+            font-size: 3rem;
+        }
+
+        .no-attendance-state h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.95rem 1.75rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(to right, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Results Header */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-meta {
+            color: #64748b;
+            font-size: 0.95rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            font-weight: 500;
+        }
+
+        .results-meta i {
+            color: #0EA5E9;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .history-container {
+                padding: 0 1rem 1.5rem;
+            }
+
+            .hero-header {
+                padding: 1.5rem;
+            }
+
+            .hero-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .subject-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .subject-stats {
+                width: 100%;
+                justify-content: space-between;
+                gap: 1rem;
+            }
+
+            .subject-stat {
+                flex: 1;
+            }
+
+            .results-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .history-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .results-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+
+    <div class="hero-header">
+        <div class="hero-content">
+            <h1>
+                <i class="fas fa-history"></i> Historique des Présences
+            </h1>
+            <p>Consultez l'historique des présences par école, groupe et date</p>
+        </div>
+    </div>
+
+    <div class="history-container">
+        <!-- Filters Section -->
+        <div class="filter-section">
+            <div class="filter-grid">
+                <!-- School Filter -->
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-school"></i>
+                        École
+                    </label>
+                    <select id="schoolSelect" class="filter-select" onchange="loadGroups()">
+                        <option value="">-- Sélectionner une école --</option>
+                        {% for school in schools %}
+                            <option value="{{ school.id }}">{{ school.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Group Filter -->
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-users"></i>
+                        Groupe
+                    </label>
+                    <select id="groupSelect" class="filter-select" disabled onchange="loadDates()">
+                        <option value="">-- Sélectionner un groupe --</option>
+                    </select>
+                </div>
+
+                <!-- Date Filter -->
+                <div class="filter-item">
+                    <label class="filter-label">
+                        <i class="fas fa-calendar"></i>
+                        Date
+                    </label>
+                    <select id="dateSelect" class="filter-select" disabled onchange="updateResults()">
+                        <option value="">-- Sélectionner une date --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn btn-secondary" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i>
+                    Réinitialiser
+                </button>
+                <button class="btn btn-primary" onclick="loadHistory()" id="searchBtn" disabled>
+                    <i class="fas fa-search"></i>
+                    Voir les présences
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <div>
+                    <div class="results-title" id="resultsTitle">Présences du groupe</div>
+                    <div class="results-meta" id="resultsMeta"></div>
+                </div>
+                <div>
+                    <button class="btn btn-secondary" onclick="refreshResults()">
+                        <i class="fas fa-sync-alt"></i>
+                        Actualiser
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results will be loaded here -->
+            <div id="resultsContainer"></div>
+        </div>
+
+        <!-- Initial State -->
+        <div id="initialState" class="empty-state">
+            <i class="fas fa-history"></i>
+            <h3>Historique des présences</h3>
+            <p>Sélectionnez une école, un groupe et une date pour voir les présences</p>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let currentLimit = 20;
+        let currentFilters = {};
+        let groupsCache = {};
+        let datesCache = {};
+        let allStudents = [];
+        let subjectsLoaded = 0;
+        let totalSubjectsToCheck = 0;
+        let subjectsWithData = [];
+        let subjectsToCheck = ['Math', 'French'];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            disableFilters(['group', 'date']);
+        });
+
+        // Helper function to disable/enable filters
+        function disableFilters(filters) {
+            filters.forEach(filter => {
+                const element = document.getElementById(filter + 'Select');
+                if (element) {
+                    element.disabled = true;
+                    element.value = '';
+                }
+            });
+        }
+
+        function enableFilter(filter) {
+            const element = document.getElementById(filter + 'Select');
+            if (element) {
+                element.disabled = false;
+            }
+        }
+
+        // Load groups when school is selected
+        function loadGroups() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupSelect = document.getElementById('groupSelect');
+
+            if (!schoolId) {
+                disableFilters(['group', 'date']);
+                groupSelect.innerHTML = '<option value="">-- Sélectionner un groupe --</option>';
+                groupsCache = {};
+                datesCache = {};
+                document.getElementById('searchBtn').disabled = true;
+                return;
+            }
+
+            // Check cache first
+            if (groupsCache[schoolId]) {
+                populateGroups(groupsCache[schoolId]);
+                return;
+            }
+
+            disableFilters(['group', 'date']);
+            groupSelect.innerHTML = '<option value="">Chargement...</option>';
+
+            fetch(`/admin/api/groups-by-school/${schoolId}`)
+                .then(response => response.json())
+                .then(groups => {
+                    groupsCache[schoolId] = groups;
+                    populateGroups(groups);
+                })
+                .catch(error => {
+                    console.error('Error loading groups:', error);
+                    groupSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                });
+        }
+
+        function populateGroups(groups) {
+            const groupSelect = document.getElementById('groupSelect');
+            groupSelect.innerHTML = '<option value="">-- Sélectionner un groupe --</option>';
+
+            if (groups.length === 0) {
+                groupSelect.innerHTML = '<option value="">Aucun groupe disponible</option>';
+                disableFilters(['date']);
+                return;
+            }
+
+            groups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group.id;
+                option.textContent = group.name + (group.teacher ? ` (${group.teacher})` : '');
+                groupSelect.appendChild(option);
+            });
+
+            enableFilter('group');
+        }
+
+        // Load dates when group is selected
+        function loadDates() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const dateSelect = document.getElementById('dateSelect');
+
+            if (!schoolId || !groupId) {
+                disableFilters(['date']);
+                dateSelect.innerHTML = '<option value="">-- Sélectionner une date --</option>';
+                datesCache = {};
+                document.getElementById('searchBtn').disabled = true;
+                return;
+            }
+
+            const cacheKey = `${schoolId}_${groupId}`;
+
+            // Check cache first
+            if (datesCache[cacheKey]) {
+                populateDates(datesCache[cacheKey]);
+                return;
+            }
+
+            disableFilters(['date']);
+            dateSelect.innerHTML = '<option value="">Chargement...</option>';
+            document.getElementById('searchBtn').disabled = true;
+
+            fetch(`/admin/api/available-dates?schoolId=${schoolId}&groupId=${groupId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        datesCache[cacheKey] = data.dates;
+                        populateDates(data.dates);
+                    } else {
+                        dateSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading dates:', error);
+                    dateSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                });
+        }
+
+        function populateDates(dates) {
+            const dateSelect = document.getElementById('dateSelect');
+            dateSelect.innerHTML = '<option value="">-- Sélectionner une date --</option>';
+
+            if (dates.length === 0) {
+                dateSelect.innerHTML = '<option value="">Aucune date disponible</option>';
+                return;
+            }
+
+            dates.forEach(date => {
+                const option = document.createElement('option');
+                option.value = date.value;
+                option.textContent = date.label;
+                option.title = date.full;
+                dateSelect.appendChild(option);
+            });
+
+            enableFilter('date');
+        }
+
+        // Update results when filters change
+        function updateResults() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const date = document.getElementById('dateSelect').value;
+            const searchBtn = document.getElementById('searchBtn');
+
+            searchBtn.disabled = !(schoolId && groupId && date);
+        }
+
+        // Hide loading spinner
+        function hideLoadingSpinner() {
+            const loadingElement = document.getElementById('loadingSpinner');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+        }
+
+        // Remove loading spinner completely
+        function removeLoadingSpinner() {
+            const loadingElement = document.getElementById('loadingSpinner');
+            if (loadingElement && loadingElement.parentNode) {
+                loadingElement.parentNode.removeChild(loadingElement);
+            }
+        }
+
+        // Reset subject counter
+        function resetSubjectCounter() {
+            subjectsLoaded = 0;
+            totalSubjectsToCheck = 0;
+            subjectsWithData = [];
+        }
+
+        // Load history data
+        function loadHistory() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (!schoolId || !groupId || !date) {
+                alert('Veuillez sélectionner une école, un groupe et une date');
+                return;
+            }
+
+            // Get group name for display
+            const groupName = document.getElementById('groupSelect').selectedOptions[0].text;
+            const dateLabel = document.getElementById('dateSelect').selectedOptions[0].text;
+
+            // Update results title
+            document.getElementById('resultsTitle').textContent = `Présences du groupe ${groupName}`;
+            document.getElementById('resultsMeta').innerHTML = `
+                <span><i class="fas fa-calendar"></i> ${dateLabel}</span>
+                <span><i class="fas fa-clock"></i> Vérification des présences...</span>
+            `;
+
+            // Show loading and hide initial state
+            document.getElementById('initialState').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="loading" id="loadingSpinner">
+                    <i class="fas fa-spinner fa-spin loading-spinner"></i>
+                    <p>Chargement des présences...</p>
+                </div>
+            `;
+
+            // Reset and clear
+            resetSubjectCounter();
+            allStudents = [];
+
+            // First, get all students in the group
+            fetch(`/admin/api/students-by-group/${groupId}?schoolId=${schoolId}`)
+                .then(response => response.json())
+                .then(studentsData => {
+                    if (studentsData.error) {
+                        throw new Error(studentsData.error);
+                    }
+
+                    allStudents = studentsData.students;
+
+                    // Check available subjects first (API approach)
+                    checkAvailableSubjects(schoolId, groupId, date, groupName, dateLabel);
+                })
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                    removeLoadingSpinner();
+                    showErrorState('Erreur lors du chargement des étudiants', error.message);
+                });
+        }
+
+        // Check which subjects have attendance data
+        function checkAvailableSubjects(schoolId, groupId, date, groupName, dateLabel) {
+            // Try the new API endpoint first
+            fetch(`/admin/api/available-subjects?schoolId=${schoolId}&groupId=${groupId}&date=${date}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.subjects && data.subjects.length > 0) {
+                        // Load only subjects that have data
+                        totalSubjectsToCheck = data.subjects.length;
+                        data.subjects.forEach(subject => {
+                            loadAttendanceBySubject(subject, schoolId, groupId, date, groupName, dateLabel);
+                        });
+                    } else {
+                        // No subjects found - show empty state
+                        showNoAttendanceFound(groupName, dateLabel);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking available subjects:', error);
+                    // Fallback to checking all subjects
+                    totalSubjectsToCheck = subjectsToCheck.length;
+                    subjectsToCheck.forEach(subject => {
+                        loadAttendanceBySubject(subject, schoolId, groupId, date, groupName, dateLabel);
+                    });
+
+                    // Set timeout to check if any subjects loaded
+                    setTimeout(() => {
+                        if (subjectsWithData.length === 0 && subjectsLoaded >= totalSubjectsToCheck) {
+                            showNoAttendanceFound(groupName, dateLabel);
+                        }
+                    }, 3000);
+                });
+        }
+
+        // Load attendance for a specific subject
+        function loadAttendanceBySubject(subject, schoolId, groupId, date, groupName, dateLabel) {
+            // Build filters for this subject
+            const filters = {
+                schoolId: schoolId,
+                groupId: groupId,
+                date: date,
+                subject: subject,
+                page: 1,
+                limit: 100
+            };
+
+            const queryParams = new URLSearchParams();
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value !== null && value !== '') {
+                    queryParams.append(key, value);
+                }
+            });
+
+            fetch(`/admin/api/attendance-history?${queryParams}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data && data.data.length > 0) {
+                        subjectsWithData.push(subject);
+                        displaySubjectResults(subject, data.data, groupName, dateLabel);
+                    }
+
+                    subjectsLoaded++;
+                    checkAllSubjectsLoaded(groupName, dateLabel);
+                })
+                .catch(error => {
+                    console.error(`Error loading ${subject} attendance:`, error);
+                    subjectsLoaded++;
+                    checkAllSubjectsLoaded(groupName, dateLabel);
+                });
+        }
+
+        // Check if all subjects are loaded
+        function checkAllSubjectsLoaded(groupName, dateLabel) {
+            if (subjectsLoaded >= totalSubjectsToCheck) {
+                removeLoadingSpinner();
+
+                if (subjectsWithData.length === 0) {
+                    // No subjects had data
+                    showNoAttendanceFound(groupName, dateLabel);
+                } else {
+                    // Some subjects had data, update meta info
+                    updateMetaInfo(groupName, dateLabel);
+                }
+            }
+        }
+
+        // Display results for a subject
+        function displaySubjectResults(subject, attendanceData, groupName, dateLabel) {
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            // Make sure we don't duplicate content
+            const existingSubject = document.getElementById(`subject-${subject}`);
+            if (existingSubject) {
+                resultsContainer.removeChild(existingSubject);
+            }
+
+            // Create attendance map for quick lookup
+            const attendanceMap = {};
+            attendanceData.forEach(item => {
+                if (item.student && item.student.id) {
+                    attendanceMap[item.student.id] = {
+                        status: item.status,
+                        statusLabel: item.statusLabel,
+                        timeSlot: item.schedule ? item.schedule.timeSlot : '--:-- - --:--'
+                    };
+                }
+            });
+
+            // Calculate stats
+            const stats = {
+                present: 0,
+                absent: 0,
+                late: 0,
+                excused: 0,
+                noData: 0
+            };
+
+            allStudents.forEach(student => {
+                if (attendanceMap[student.id]) {
+                    const status = attendanceMap[student.id].status;
+                    if (stats[status] !== undefined) {
+                        stats[status]++;
+                    }
+                } else {
+                    stats.noData++;
+                }
+            });
+
+            // Get subject display name and icon
+            const subjectInfo = getSubjectInfo(subject);
+
+            // Create subject section
+            const subjectSection = document.createElement('div');
+            subjectSection.className = 'subject-section';
+            subjectSection.id = `subject-${subject}`;
+            subjectSection.innerHTML = `
+                <div class="subject-header">
+                    <div class="subject-icon ${subjectInfo.iconClass}">
+                        <i class="${subjectInfo.icon}"></i>
+                    </div>
+                    <div class="subject-title">${subjectInfo.displayName}</div>
+                    <div class="subject-stats">
+                        <div class="subject-stat">
+                            <div class="subject-stat-number">${stats.present}</div>
+                            <div class="subject-stat-label">Présents</div>
+                        </div>
+                        <div class="subject-stat">
+                            <div class="subject-stat-number">${stats.absent}</div>
+                            <div class="subject-stat-label">Absents</div>
+                        </div>
+                        <div class="subject-stat">
+                            <div class="subject-stat-number">${stats.late}</div>
+                            <div class="subject-stat-label">Retards</div>
+                        </div>
+                        <div class="subject-stat">
+                            <div class="subject-stat-number">${stats.excused}</div>
+                            <div class="subject-stat-label">Excusés</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Create table
+            if (allStudents.length > 0) {
+                let tableHTML = `
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Élève</th>
+                                <th>Statut</th>
+                                <th>Horaire</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                allStudents.forEach(student => {
+                    const attendance = attendanceMap[student.id];
+                    const status = attendance ? attendance.status : 'no-data';
+                    const statusLabel = attendance ? attendance.statusLabel : 'Non enregistré';
+                    const timeSlot = attendance ? attendance.timeSlot : '--:-- - --:--';
+
+                    tableHTML += `
+                        <tr>
+                            <td>${student.firstName} ${student.lastName}</td>
+                            <td>
+                                <span class="status-badge ${status}">${statusLabel}</span>
+                            </td>
+                            <td>${timeSlot}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+
+                subjectSection.innerHTML += tableHTML;
+            } else {
+                subjectSection.innerHTML += `
+                    <div class="subject-empty">
+                        <i class="fas fa-users-slash"></i>
+                        <h3>Aucun élève dans ce groupe</h3>
+                    </div>
+                `;
+            }
+
+            // Add to results container, but not over the loading spinner
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            if (loadingSpinner && resultsContainer.contains(loadingSpinner)) {
+                resultsContainer.insertBefore(subjectSection, loadingSpinner);
+            } else {
+                resultsContainer.appendChild(subjectSection);
+            }
+        }
+
+        // Get subject information for display
+        function getSubjectInfo(subjectCode) {
+            const subjects = {
+                'Math': { displayName: 'Mathématiques', icon: 'fas fa-calculator', iconClass: 'math' },
+                'French': { displayName: 'Français', icon: 'fas fa-language', iconClass: 'french' }
+            };
+
+            return subjects[subjectCode] || {
+                displayName: subjectCode,
+                icon: 'fas fa-book',
+                iconClass: 'default'
+            };
+        }
+
+        // Show error state
+        function showErrorState(title, message) {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="subject-section">
+                    <div class="subject-header">
+                        <div class="subject-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="subject-title">Erreur</div>
+                    </div>
+                    <div class="subject-empty">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                        <h3>${title}</h3>
+                        <p>${message}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show no attendance found
+        function showNoAttendanceFound(groupName, dateLabel) {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="no-attendance-state">
+                    <div class="subject-icon" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <h3>Aucune présence enregistrée</h3>
+                    <p>Aucune présence n'a été enregistrée pour le groupe <strong>${groupName}</strong> le <strong>${dateLabel}</strong></p>
+                    <p style="color: #94a3b8; margin-top: 1rem; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Essayez une autre date ou contactez l'enseignant
+                    </p>
+                </div>
+            `;
+
+            updateMetaInfo(groupName, dateLabel);
+        }
+
+        // Update meta information
+        function updateMetaInfo(groupName, dateLabel) {
+            const studentCount = allStudents.length;
+
+            // Create subject display names
+            const subjectDisplayNames = subjectsWithData.map(subject => {
+                const info = getSubjectInfo(subject);
+                return info.displayName;
+            });
+
+            const subjectsText = subjectDisplayNames.length > 0
+                ? subjectDisplayNames.join(', ')
+                : 'Aucune matière';
+
+            document.getElementById('resultsMeta').innerHTML = `
+                <span><i class="fas fa-calendar"></i> ${dateLabel}</span>
+                <span><i class="fas fa-users"></i> ${studentCount} étudiant${studentCount > 1 ? 's' : ''}</span>
+                <span><i class="fas fa-book"></i> ${subjectsText}</span>
+                <span><i class="fas fa-check-circle"></i> Chargement terminé</span>
+            `;
+        }
+
+        // Export history to Excel
+        function exportHistory() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (!schoolId || !groupId || !date) {
+                alert('Veuillez sélectionner une école, un groupe et une date pour exporter');
+                return;
+            }
+
+            if (subjectsWithData.length === 0) {
+                alert('Aucune donnée de présence à exporter pour cette date');
+                return;
+            }
+
+            // Prepare export data
+            const exportData = {
+                schoolId: schoolId,
+                groupId: groupId,
+                date: date,
+                subjects: subjectsWithData
+            };
+
+            // Call export API
+            fetch('/admin/api/export-attendance-history', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(exportData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de l\'export');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `presences_${document.getElementById('groupSelect').selectedOptions[0].text.replace(/\s+/g, '_')}_${date.replace(/-/g, '_')}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                })
+                .catch(error => {
+                    console.error('Export error:', error);
+                    alert('Erreur lors de l\'export Excel: ' + error.message);
+                });
+        }
+
+        // Refresh results
+        function refreshResults() {
+            const schoolId = document.getElementById('schoolSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (schoolId && groupId && date) {
+                // Clear current results
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="loading" id="loadingSpinner">
+                        <i class="fas fa-spinner fa-spin loading-spinner"></i>
+                        <p>Actualisation des présences...</p>
+                    </div>
+                `;
+
+                // Reload data
+                loadHistory();
+            }
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('schoolSelect').value = '';
+            document.getElementById('groupSelect').innerHTML = '<option value="">-- Sélectionner un groupe --</option>';
+            document.getElementById('dateSelect').innerHTML = '<option value="">-- Sélectionner une date --</option>';
+
+            disableFilters(['group', 'date']);
+            document.getElementById('searchBtn').disabled = true;
+
+            groupsCache = {};
+            datesCache = {};
+            allStudents = [];
+            resetSubjectCounter();
+
+            // Remove any loading spinners
+            removeLoadingSpinner();
+
+            // Clear results container
+            document.getElementById('resultsContainer').innerHTML = '';
+
+            // Hide results, show initial state
+            document.getElementById('initialState').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+    </script>
+{% endblock %}

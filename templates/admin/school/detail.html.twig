@@ -1,0 +1,839 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ entity.instance.name }} - Détails{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .school-detail-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+
+        .school-header {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            color: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .school-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .school-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .school-header h1 {
+            margin: 0 0 1rem 0;
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .school-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .school-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .school-info-item i {
+            opacity: 0.9;
+            font-size: 1.25rem;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            z-index: 2;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+            border-color: transparent;
+        }
+
+        .stat-box.blue::after {
+            background: linear-gradient(to right, #3b82f6 0%, #2563eb 100%);
+        }
+        .stat-box.green::after {
+            background: linear-gradient(to right, #10b981 0%, #059669 100%);
+        }
+        .stat-box.purple::after {
+            background: linear-gradient(to right, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .stat-box.blue .stat-icon {
+            background: linear-gradient(to right, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .stat-box.green .stat-icon {
+            background: linear-gradient(to right, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .stat-box.purple .stat-icon {
+            background: linear-gradient(to right, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-box.blue .stat-number { color: #3b82f6; }
+        .stat-box.green .stat-number { color: #10b981; }
+        .stat-box.purple .stat-number { color: #8b5cf6; }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 1rem 1.75rem;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #64748b;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-button:hover {
+            color: #0284C7;
+            background: #f1f5f9;
+        }
+
+        .tab-button.active {
+            color: #ffffff;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .add-btn {
+            padding: 0.95rem 1.75rem;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            color: white;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .data-table th {
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-weight: 700;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table th:first-child {
+            border-top-left-radius: 12px;
+        }
+
+        .data-table th:last-child {
+            border-top-right-radius: 12px;
+        }
+
+        .data-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.2s;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .badge.primary {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+
+        .badge.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .action-link {
+            color: #0EA5E9;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 0.75rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .action-link:hover {
+            color: #0284C7;
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .group-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 1.75rem;
+            border-radius: 16px;
+            margin-bottom: 1.25rem;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .group-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+        }
+
+        .group-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.15);
+            border-color: transparent;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .group-name {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .group-teacher {
+            color: #64748b;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .students-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .student-item {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .student-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+            border-color: transparent;
+        }
+
+        .student-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+            flex-shrink: 0;
+        }
+
+        .student-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .student-level {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .school-detail-container {
+                padding: 0 1rem 1.5rem;
+            }
+
+            .school-header {
+                padding: 1.75rem;
+            }
+
+            .school-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .add-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .group-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .students-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="school-detail-container">
+        <!-- School Header -->
+        <div class="school-header">
+            <h1>
+                <i class="fas fa-school"></i> {{ entity.instance.name }}
+            </h1>
+            <div class="school-info">
+                <div class="school-info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ entity.instance.address ?? 'Adresse non renseignée' }}</span>
+                </div>
+                <div class="school-info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>{{ entity.instance.phone ?? 'Téléphone non renseigné' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-overview">
+            <div class="stat-box blue">
+                <div class="stat-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="stat-number">{{ entity.instance.teachers|length }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-chalkboard-teacher"></i> Enseignants
+                </div>
+            </div>
+            <div class="stat-box green">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number">{{ entity.instance.studentGroups|length }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-users"></i> Groupes
+                </div>
+            </div>
+            <div class="stat-box purple">
+                <div class="stat-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="stat-number">
+                    {% set totalStudents = 0 %}
+                    {% for group in entity.instance.studentGroups %}
+                        {% set totalStudents = totalStudents + group.students|length %}
+                    {% endfor %}
+                    {{ totalStudents }}
+                </div>
+                <div class="stat-label">
+                    <i class="fas fa-user-graduate"></i> Étudiants
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('teachers')">
+                <i class="fas fa-chalkboard-teacher"></i> Enseignants
+            </button>
+            <button class="tab-button" onclick="switchTab('groups')">
+                <i class="fas fa-users"></i> Groupes d'étudiants
+            </button>
+            <button class="tab-button" onclick="switchTab('students')">
+                <i class="fas fa-user-graduate"></i> Tous les étudiants
+            </button>
+        </div>
+
+        <!-- Teachers Tab -->
+        <div id="teachers-tab" class="tab-content active">
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Enseignants
+                    </h2>
+                    <a href="{{ path('admin') }}?crudAction=new&crudControllerFqcn=App\\Controller\\Admin\\TeacherCrudController"
+                       class="add-btn">
+                        <i class="fas fa-plus"></i> Ajouter un enseignant
+                    </a>
+                </div>
+
+                {% if entity.instance.teachers is empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <p>Aucun enseignant assigné à cette école</p>
+                    </div>
+                {% else %}
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Nom complet</th>
+                            <th>Téléphone</th>
+                            <th>Groupes assignés</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for teacher in entity.instance.teachers %}
+                            <tr>
+                                <td>
+                                    <strong>{{ teacher.firstName }} {{ teacher.lastName }}</strong>
+                                </td>
+                                <td>{{ teacher.phone ?? '-' }}</td>
+                                <td>
+                                    <span class="badge primary">
+                                        {{ teacher.studentGroups|length }} groupe(s)
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ path('admin') }}?crudAction=detail&crudControllerFqcn=App\\Controller\\Admin\\TeacherCrudController&entityId={{ teacher.id }}"
+                                       class="action-link">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+                                    <a href="{{ path('admin') }}?crudAction=edit&crudControllerFqcn=App\\Controller\\Admin\\TeacherCrudController&entityId={{ teacher.id }}"
+                                       class="action-link">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Groups Tab -->
+        <div id="groups-tab" class="tab-content">
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-users"></i>
+                        Groupes d'étudiants
+                    </h2>
+                    <a href="{{ path('admin') }}?crudAction=new&crudControllerFqcn=App\\Controller\\Admin\\StudentGroupCrudController"
+                       class="add-btn">
+                        <i class="fas fa-plus"></i> Créer un groupe
+                    </a>
+                </div>
+
+                {% if entity.instance.studentGroups is empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <p>Aucun groupe d'étudiants créé pour cette école</p>
+                    </div>
+                {% else %}
+                    {% for group in entity.instance.studentGroups %}
+                        <div class="group-card">
+                            <div class="group-header">
+                                <div>
+                                    <div class="group-name">
+                                        <i class="fas fa-users"></i> {{ group.name }}
+                                    </div>
+                                    <div class="group-teacher">
+                                        {% if group.teacher %}
+                                            <i class="fas fa-user"></i>
+                                            Enseignant: {{ group.teacher.firstName }} {{ group.teacher.lastName }}
+                                        {% else %}
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            Aucun enseignant assigné
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                    <span class="badge success">
+                                        {{ group.students|length }} étudiant(s)
+                                    </span>
+                                    <a href="{{ path('admin') }}?crudAction=edit&crudControllerFqcn=App\\Controller\\Admin\\StudentGroupCrudController&entityId={{ group.id }}"
+                                       class="action-link">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                </div>
+                            </div>
+
+                            {% if group.students is not empty %}
+                                <div class="students-list">
+                                    {% for student in group.students %}
+                                        <div class="student-item">
+                                            <div class="student-avatar">
+                                                {{ student.firstName|first }}{{ student.lastName|first }}
+                                            </div>
+                                            <div class="student-info">
+                                                <div class="student-name">
+                                                    {{ student.firstName }} {{ student.lastName }}
+                                                </div>
+                                                <div class="student-level">
+                                                    {{ student.niveauScolaire }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p style="color: #64748b; font-style: italic; margin-top: 1rem;">
+                                    Aucun étudiant dans ce groupe
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- All Students Tab -->
+        <div id="students-tab" class="tab-content">
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-user-graduate"></i>
+                        Tous les étudiants
+                    </h2>
+                    <a href="{{ path('admin') }}?crudAction=new&crudControllerFqcn=App\\Controller\\Admin\\StudentCrudController"
+                       class="add-btn">
+                        <i class="fas fa-plus"></i> Ajouter un étudiant
+                    </a>
+                </div>
+
+                {% set allStudents = [] %}
+                {% for group in entity.instance.studentGroups %}
+                    {% set allStudents = allStudents|merge(group.students) %}
+                {% endfor %}
+
+                {% if allStudents is empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-user-graduate"></i>
+                        <p>Aucun étudiant inscrit dans cette école</p>
+                    </div>
+                {% else %}
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Nom complet</th>
+                            <th>Date de naissance</th>
+                            <th>Niveau scolaire</th>
+                            <th>Groupe</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for student in allStudents %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div class="student-avatar" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                            {{ student.firstName|first }}{{ student.lastName|first }}
+                                        </div>
+                                        <strong>{{ student.firstName }} {{ student.lastName }}</strong>
+                                    </div>
+                                </td>
+                                <td>{{ student.dateOfBirth ? student.dateOfBirth|date('d/m/Y') : '-' }}</td>
+                                <td>
+                                    <span class="badge primary">{{ student.niveauScolaire }}</span>
+                                </td>
+                                <td>{{ student.studentGroup.name }}</td>
+                                <td>
+                                    <a href="{{ path('admin') }}?crudAction=detail&crudControllerFqcn=App\\Controller\\Admin\\StudentCrudController&entityId={{ student.id }}"
+                                       class="action-link">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+                                    <a href="{{ path('admin') }}?crudAction=edit&crudControllerFqcn=App\\Controller\\Admin\\StudentCrudController&entityId={{ student.id }}"
+                                       class="action-link">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            event.target.closest('.tab-button').classList.add('active');
+        }
+    </script>
+{% endblock %}

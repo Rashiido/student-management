@@ -6,6 +6,7 @@ use App\Repository\TeacherRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TeacherRepository::class)]
 class Teacher
@@ -22,10 +23,13 @@ class Teacher
     private ?string $lastName = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Regex(
+        pattern: '/^0[67][0-9]{8}$/',
+        message: 'Le numéro de téléphone doit commencer par 06 ou 07 et contenir 10 chiffres.'
+    )]
     private ?string $phone = null;
 
     #[ORM\ManyToOne(inversedBy: 'teachers')]
-    #[ORM\JoinColumn(nullable: false)]
     private ?School $school = null;
 
     #[ORM\OneToOne(inversedBy: 'teacher', cascade: ['persist', 'remove'])]
@@ -139,6 +143,8 @@ class Teacher
     }
     public function __toString(): string
     {
-        return $this->firstName . ' ' . $this->lastName . ' - ' . ($this->school ? $this->school->getName() : 'Non assigné');
+        $schoolLabel = $this->school?->getName() ?? 'Non assigné';
+
+        return $this->firstName . ' ' . $this->lastName . ' - ' . $schoolLabel;
     }
 }

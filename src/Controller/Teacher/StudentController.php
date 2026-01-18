@@ -70,17 +70,65 @@ class StudentController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        if ($request->isMethod('POST')) {
-            $firstName = trim((string) $request->request->get('firstName'));
-            $lastName = trim((string) $request->request->get('lastName'));
-            $niveauScolaire = trim((string) $request->request->get('niveauScolaire'));
+        $maxStudents = 30;
+        $studentsInput = [];
+        $studentCount = 1;
 
-            if ($firstName === '' || $lastName === '' || $niveauScolaire === '') {
-                $this->addFlash('error', 'Tous les champs sont obligatoires.');
-                return $this->render('teacher/student/add.html.twig', [
-                    'teacher' => $teacher,
-                    'groups' => $teacher->getStudentGroups(),
+        if ($request->isMethod('POST')) {
+            // Validate CSRF token
+            if (!$this->isCsrfTokenValid('add_students', $request->request->get('_token'))) {
+                $this->addFlash('error', 'Invalid CSRF token.');
+                return $this->redirectToRoute('teacher_student_add');
+            }
+
+            $studentCount = (int) $request->request->get('student_count', 1);
+            if ($studentCount < 1) {
+                $studentCount = 1;
+            } elseif ($studentCount > $maxStudents) {
+                $studentCount = $maxStudents;
+            }
+
+            $submittedStudents = $request->request->all('students');
+            if (!is_array($submittedStudents)) {
+                $submittedStudents = [];
+            }
+
+            $studentsToCreate = [];
+            $errors = [];
+
+            for ($i = 1; $i <= $studentCount; $i++) {
+                $data = $submittedStudents[$i] ?? [];
+                $firstName = trim((string) ($data['firstName'] ?? ''));
+                $lastName = trim((string) ($data['lastName'] ?? ''));
+                $niveauRaw = trim((string) ($data['niveauScolaire'] ?? ''));
+                $niveauValue = filter_var($niveauRaw, FILTER_VALIDATE_INT, [
+                    'options' => [
+                        'min_range' => 1,
+                        'max_range' => 6,
+                    ],
                 ]);
+
+                $studentsInput[$i] = [
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'niveauScolaire' => $niveauRaw,
+                ];
+
+                if ($firstName === '' || $lastName === '' || $niveauRaw === '') {
+                    $errors[] = "L'eleve {$i} est incomplet.";
+                    continue;
+                }
+
+                if (false === $niveauValue) {
+                    $errors[] = "Le niveau scolaire de l'eleve {$i} doit etre entre 1 et 6.";
+                    continue;
+                }
+
+                $studentsToCreate[] = [
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'niveauScolaire' => (string) $niveauValue,
+                ];
             }
 
             $groupId = $request->request->get('group');
@@ -90,26 +138,133 @@ class StudentController extends AbstractController
                 return $this->render('teacher/student/add.html.twig', [
                     'teacher' => $teacher,
                     'groups' => $teacher->getStudentGroups(),
+                    'studentsInput' => $studentsInput,
+                    'studentCount' => $studentCount,
+                    'selectedGroupId' => $groupId,
                 ]);
             }
 
-            $student = new Student();
-            $student->setFirstName($firstName);
-            $student->setLastName($lastName);
-            $student->setNiveauScolaire($niveauScolaire);
-            $student->setSchool($teacher->getSchool());
-            $student->setStudentGroup($group);
+            if (empty($studentsToCreate)) {
+                $errors[] = 'Ajoutez au moins un eleve.';
+            }
 
-            $em->persist($student);
+            if (!empty($errors)) {
+                $this->addFlash('error', implode(' ', $errors));
+                return $this->render('teacher/student/add.html.twig', [
+                    'teacher' => $teacher,
+                    'groups' => $teacher->getStudentGroups(),
+                    'studentsInput' => $studentsInput,
+                    'studentCount' => $studentCount,
+                    'selectedGroupId' => $groupId,
+                ]);
+            }
+
+            foreach ($studentsToCreate as $studentData) {
+                $student = new Student();
+                $student->setFirstName($studentData['firstName']);
+                $student->setLastName($studentData['lastName']);
+                $student->setNiveauScolaire($studentData['niveauScolaire']);
+                $student->setSchool($group->getSchool());
+                $student->setStudentGroup($group);
+                $em->persist($student);
+            }
+
             $em->flush();
 
-            $this->addFlash('success', 'Eleve ajoute avec succes.');
+            $this->addFlash('success', 'Eleves ajoutes avec succes.');
             return $this->redirectToRoute('teacher_my_students');
         }
 
         return $this->render('teacher/student/add.html.twig', [
             'teacher' => $teacher,
             'groups' => $teacher->getStudentGroups(),
+            'studentsInput' => $studentsInput,
+            'studentCount' => $studentCount,
+            'selectedGroupId' => null,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'teacher_student_edit')]
+    public function edit(Request $request, Student $student, EntityManagerInterface $em): Response
+    {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $teacher = $user->getTeacher();
+        if (!$teacher || $student->getStudentGroup()?->getTeacher() !== $teacher) {
+            throw $this->createAccessDeniedException('You do not have access to this student.');
+        }
+
+        $firstName = (string) $request->request->get('firstName', $student->getFirstName());
+        $lastName = (string) $request->request->get('lastName', $student->getLastName());
+        $niveauScolaire = (string) $request->request->get('niveauScolaire', $student->getNiveauScolaire());
+        $selectedGroupId = (string) $request->request->get('group', (string) $student->getStudentGroup()?->getId());
+
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('edit_student' . $student->getId(), (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton CSRF invalide.');
+            } else {
+                $firstName = trim($firstName);
+                $lastName = trim($lastName);
+                $niveauScolaire = trim($niveauScolaire);
+
+                if ($firstName === '' || $lastName === '' || $niveauScolaire === '') {
+                    $this->addFlash('error', 'Tous les champs sont obligatoires.');
+                } else {
+                    $niveauValue = filter_var($niveauScolaire, FILTER_VALIDATE_INT, [
+                        'options' => [
+                            'min_range' => 1,
+                            'max_range' => 6,
+                        ],
+                    ]);
+
+                    if (false === $niveauValue) {
+                        $this->addFlash('error', 'Le niveau scolaire doit etre entre 1 et 6.');
+                        return $this->render('teacher/student/edit.html.twig', [
+                            'teacher' => $teacher,
+                            'student' => $student,
+                            'groups' => $teacher->getStudentGroups(),
+                            'firstName' => $firstName,
+                            'lastName' => $lastName,
+                            'niveauScolaire' => $niveauScolaire,
+                            'selectedGroupId' => $selectedGroupId,
+                        ]);
+                    }
+
+                    $niveauScolaire = (string) $niveauValue;
+                    $group = $selectedGroupId !== ''
+                        ? $em->getRepository(StudentGroup::class)->find($selectedGroupId)
+                        : null;
+
+                    if (!$group || $group->getTeacher() !== $teacher) {
+                        $this->addFlash('error', 'Veuillez selectionner une classe valide.');
+                    } else {
+                        $student->setFirstName($firstName);
+                        $student->setLastName($lastName);
+                        $student->setNiveauScolaire($niveauScolaire);
+                        $student->setSchool($group->getSchool());
+                        $student->setStudentGroup($group);
+
+                        $em->flush();
+
+                        $this->addFlash('success', 'Eleve modifie avec succes.');
+                        return $this->redirectToRoute('teacher_my_students');
+                    }
+                }
+            }
+        }
+
+        return $this->render('teacher/student/edit.html.twig', [
+            'teacher' => $teacher,
+            'student' => $student,
+            'groups' => $teacher->getStudentGroups(),
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'niveauScolaire' => $niveauScolaire,
+            'selectedGroupId' => $selectedGroupId,
         ]);
     }
 

@@ -41,7 +41,8 @@ class TeacherCrudController extends AbstractCrudController
             ->setDefaultSort(['lastName' => 'ASC', 'firstName' => 'ASC'])
             ->setPaginatorPageSize(20)
             ->overrideTemplate('crud/index', 'admin/teacher/index.html.twig')
-            ->overrideTemplate('crud/detail', 'admin/teacher/detail.html.twig');
+            ->overrideTemplate('crud/detail', 'admin/teacher/detail.html.twig')
+            ->overrideTemplate('crud/new', 'admin/teacher/add.html.twig');
     }
 
     public function configureFilters(Filters $filters): Filters

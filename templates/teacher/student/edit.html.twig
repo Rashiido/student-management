@@ -1,0 +1,304 @@
+{% extends 'teacher/base.html.twig' %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        .edit-student-wrapper {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .edit-student-hero {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .edit-student-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .edit-student-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .edit-student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .edit-student-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .edit-student-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .back-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            color: #ffffff;
+        }
+
+        .edit-student-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .edit-student-card:hover {
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .edit-student-card-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .edit-student-card-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .edit-student-card-body {
+            padding: 1.75rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-field label {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .form-field input,
+        .form-field select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #ffffff;
+            width: 100%;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-cancel {
+            padding: 0.85rem 1.8rem;
+            border-radius: 12px;
+            background: #e2e8f0;
+            color: #475569;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-submit {
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #0891b2;
+        }
+
+        @media (max-width: 768px) {
+            .edit-student-wrapper {
+                padding: 1rem;
+            }
+
+            .edit-student-hero {
+                padding: 1.5rem;
+            }
+
+            .edit-student-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .edit-student-title {
+                font-size: 1.75rem;
+            }
+
+            .back-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-cancel,
+            .btn-submit {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="edit-student-wrapper">
+        <div class="edit-student-hero">
+            <div class="edit-student-header">
+                <div>
+                    <h1 class="edit-student-title">
+                        <i class="bi bi-pencil-square"></i>
+                        Modifier l'élève
+                    </h1>
+                    <p class="edit-student-subtitle">Mettez à jour les informations de l'élève</p>
+                </div>
+                <a href="{{ path('teacher_my_students') }}" class="back-btn">
+                    <i class="bi bi-arrow-left"></i>
+                    Retour
+                </a>
+            </div>
+        </div>
+
+        <div class="edit-student-card">
+            <div class="edit-student-card-header">
+                <h3>Informations de l'élève</h3>
+            </div>
+            <div class="edit-student-card-body">
+                <form method="post" action="{{ path('teacher_student_edit', {'id': student.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('edit_student' ~ student.id) }}">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="firstName">Prénom</label>
+                            <input type="text" id="firstName" name="firstName" value="{{ firstName }}" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="lastName">Nom</label>
+                            <input type="text" id="lastName" name="lastName" value="{{ lastName }}" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="niveauScolaire">Niveau scolaire (1-6)</label>
+                            <input type="number" id="niveauScolaire" name="niveauScolaire" value="{{ niveauScolaire }}" min="1" max="6" step="1" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="group">Classe</label>
+                            <select id="group" name="group" required>
+                                <option value="">-- Sélectionner une classe --</option>
+                                {% for group in groups %}
+                                    <option value="{{ group.id }}" {{ selectedGroupId == group.id ? 'selected' : '' }}>
+                                        {{ group.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <a href="{{ path('teacher_my_students') }}" class="btn-cancel">
+                            <i class="bi bi-x-circle"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn-submit">
+                            <i class="bi bi-check-circle"></i>
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

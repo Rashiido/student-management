@@ -1,0 +1,490 @@
+{# templates/admin/teacher/edit.html.twig #}
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Modifier l'enseignant{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .edit-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-content h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-content p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .edit-form-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .form-header h2 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-header h2 i {
+            color: #0284C7;
+        }
+
+        .form-content {
+            padding: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: #0EA5E9;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: #ef4444;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            transition: all 0.2s;
+            background: white;
+            font-family: "Cairo", "Inter", sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            transition: all 0.2s;
+            background: white;
+            cursor: pointer;
+            font-family: "Cairo", "Inter", sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em 1.5em;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            border-top: 2px solid #e2e8f0;
+            background: #f8fafc;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.75rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: "Cairo", "Inter", sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-1px);
+            color: #475569;
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(to right, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+            color: white;
+        }
+
+        .password-note {
+            padding: 1rem;
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+            margin-top: 0.5rem;
+        }
+
+        .password-note p {
+            margin: 0;
+            color: #1e40af;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #7f1d1d;
+            border-left: 4px solid #ef4444;
+        }
+
+        .form-errors {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .edit-container {
+                padding: 1rem;
+            }
+
+            .header-section {
+                padding: 1.5rem;
+            }
+
+            .header-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .form-content {
+                padding: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="edit-container">
+        <!-- Header -->
+        <div class="header-section">
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-user-edit"></i> Modifier l'enseignant
+                </h1>
+                <p>Mettez à jour les informations de l'enseignant</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="edit-form-container">
+            <div class="form-header">
+                <h2>
+                    <i class="fas fa-user-graduate"></i>
+                    {{ teacher.firstName }} {{ teacher.lastName }}
+                </h2>
+            </div>
+
+            {{ form_start(form, {'attr': {'class': 'form-content'}}) }}
+
+            {% if app.session.flashbag.peek('success') is not empty %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    {% for message in app.flashes('success') %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if app.session.flashbag.peek('error') is not empty %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for message in app.flashes('error') %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Informations personnelles -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-id-card"></i> Informations personnelles
+                </h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form_label(form.firstName, 'Prénom', {'label_attr': {'class': 'form-label required'}}) }}
+                        {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
+                        {% if form.firstName.vars.errors|length > 0 %}
+                            <div class="form-errors">
+                                {% for error in form.firstName.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.lastName, 'Nom', {'label_attr': {'class': 'form-label required'}}) }}
+                        {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
+                        {% if form.lastName.vars.errors|length > 0 %}
+                            <div class="form-errors">
+                                {% for error in form.lastName.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form_label(form.phone, 'Téléphone', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.phone, {'attr': {'class': 'form-control', 'placeholder': '06xxxxxxxx', 'pattern': '0[67][0-9]{8}', 'minlength': '10', 'maxlength': '10', 'inputmode': 'numeric', 'title': 'Doit commencer par 06 ou 07 et contenir 10 chiffres'}}) }}
+                        {% if form.phone.vars.errors|length > 0 %}
+                            <div class="form-errors">
+                                {% for error in form.phone.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Affectation scolaire -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-school"></i> Affectation scolaire
+                </h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form_label(form.school, 'Ecole', {'label_attr': {'class': 'form-label required'}}) }}
+                        {{ form_widget(form.school, {'attr': {'class': 'form-select'}}) }}
+                        <span class="form-help">Choisissez une ecole.</span>
+                        {% if form.school.vars.errors|length > 0 %}
+                            <div class="form-errors">
+                                {% for error in form.school.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations de connexion -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-key"></i> Informations de connexion
+                </h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form_label(form.user.username, 'Nom d\'utilisateur', {'label_attr': {'class': 'form-label required'}}) }}
+                        {{ form_widget(form.user.username, {'attr': {'class': 'form-control'}}) }}
+                        <span class="form-help">
+                                Utilisé pour la connexion au système
+                            </span>
+                        {% if form.user.username.vars.errors|length > 0 %}
+                            <div class="form-errors">
+                                {% for error in form.user.username.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="password-note">
+                    <p>
+                        <i class="fas fa-info-circle"></i>
+                        Le mot de passe est généré automatiquement : nom d'utilisateur + "123"
+                    </p>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <div>
+                    <a href="{{ path('admin_teacher_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer les modifications
+                    </button>
+
+                    <form method="post" action="{{ path('admin_teacher_delete', {'id': teacher.id}) }}"
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet enseignant ?');"
+                          style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ teacher.id) }}">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+{% endblock %}

@@ -118,13 +118,20 @@
             padding: 1.75rem 2rem;
             background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
             color: white;
-            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: all 0.25s;
             position: relative;
             overflow: hidden;
+        }
+
+        .school-header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex: 1;
+            cursor: pointer;
         }
 
         .school-header::before {
@@ -136,9 +143,10 @@
             bottom: 0;
             background: rgba(255, 255, 255, 0);
             transition: background 0.25s;
+            pointer-events: none;
         }
 
-        .school-header:hover::before {
+        .school-header-left:hover ~ ::before {
             background: rgba(255, 255, 255, 0.1);
         }
 
@@ -167,6 +175,37 @@
             align-items: center;
             gap: 0.5rem;
             font-weight: 500;
+        }
+
+        .school-actions {
+            display: flex;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            font-size: 1rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .action-btn.delete:hover {
+            background: #ef4444;
         }
 
         .expand-icon {
@@ -570,6 +609,186 @@
             transform: translateY(-1px);
         }
 
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 0.875rem;
+            background: #f1f5f9;
+            color: #64748b;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 0.875rem;
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-delete-confirm {
+            flex: 1;
+            padding: 0.875rem;
+            background: linear-gradient(to right, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-delete-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+        }
+
+        .delete-warning {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #991b1b;
+        }
+
+        .delete-warning p {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         @media (max-width: 768px) {
             .hero-header {
                 padding: 1.5rem;
@@ -593,21 +812,35 @@
                 padding: 0 1rem 1.5rem;
             }
 
-            .school-header,
-            .group-header {
+            .school-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
             }
 
-            .school-meta,
-            .group-stats {
+            .school-header-left {
+                flex-direction: column;
+                align-items: flex-start;
                 width: 100%;
+            }
+
+            .school-meta {
+                width: 100%;
+            }
+
+            .school-actions {
+                width: 100%;
+                justify-content: flex-end;
             }
 
             .stats-row,
             .teachers-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 1.5rem;
             }
         }
     </style>
@@ -638,13 +871,13 @@
         {% else %}
             {% for entity in entities %}
                 {% set school = entity.instance %}
-                <div class="school-card" id="school-{{ school.id }}">
-                    <div class="school-header" onclick="toggleSchool({{ school.id }})">
-                        <div class="school-title">
-                            <i class="fas fa-school"></i>
-                            {{ school.name }}
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 2rem;">
+                <div class="school-card" id="school-{{ school.id }}" data-school-id="{{ school.id }}">
+                    <div class="school-header">
+                        <div class="school-header-left" onclick="toggleSchool({{ school.id }})">
+                            <div class="school-title">
+                                <i class="fas fa-school"></i>
+                                {{ school.name }}
+                            </div>
                             <div class="school-meta">
                                 <div class="school-meta-item">
                                     <i class="fas fa-chalkboard-teacher"></i>
@@ -657,10 +890,31 @@
                             </div>
                             <i class="fas fa-chevron-down expand-icon"></i>
                         </div>
+                        <div class="school-actions">
+                            <button class="action-btn" onclick="editSchool(event, {{ school.id }}, '{{ school.name|e('js') }}', '{{ school.phone|default('')|e('js') }}')" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="deleteSchool(event, {{ school.id }}, '{{ school.name|e('js') }}')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="school-content">
                         <div class="school-body">
+                            <!-- School Info Section -->
+                            {% if school.phone %}
+                                <div style="background: white; padding: 1.25rem 1.75rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600; margin-bottom: 0.25rem;">Téléphone</div>
+                                        <div style="font-size: 1.1rem; font-weight: 700; color: #1e293b;">{{ school.phone }}</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
                             <!-- Statistics -->
                             <div class="stats-row">
                                 <div class="stat-box blue">
@@ -824,7 +1078,69 @@
         {% endif %}
     </div>
 
+    <!-- Edit School Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-edit"></i>
+                    Modifier l'école
+                </h2>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="editForm">
+                <div class="form-group">
+                    <label class="form-label">Nom de l'école *</label>
+                    <input type="text" id="editName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Téléphone</label>
+                    <input type="text" id="editPhone" class="form-input" placeholder="Ex: +212 6XX XX XX XX">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeEditModal()">Annuler</button>
+                <button class="btn-save" onclick="saveSchool()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                    Confirmer la suppression
+                </h2>
+                <button class="modal-close" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="delete-warning">
+                <p>
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>Attention :</strong> Cette action est irréversible.
+                </p>
+            </div>
+            <p id="deleteMessage" style="color: #64748b; margin-bottom: 1.5rem;"></p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeDeleteModal()">Annuler</button>
+                <button class="btn-delete-confirm" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let currentSchoolId = null;
+        let deleteSchoolId = null;
+
         function toggleSchool(schoolId) {
             const card = document.getElementById('school-' + schoolId);
             card.classList.toggle('expanded');
@@ -835,5 +1151,107 @@
             card.classList.toggle('expanded');
             event.stopPropagation();
         }
+
+        function editSchool(event, id, name, phone) {
+            event.stopPropagation();
+            currentSchoolId = id;
+            document.getElementById('editName').value = name;
+            document.getElementById('editPhone').value = phone || '';
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentSchoolId = null;
+        }
+
+        async function saveSchool() {
+            const name = document.getElementById('editName').value.trim();
+            
+            if (!name) {
+                alert('Le nom de l\'école est requis');
+                return;
+            }
+
+            const data = {
+                name: name,
+                phone: document.getElementById('editPhone').value.trim()
+            };
+
+            try {
+                const response = await fetch(`/admin/api/schools/${currentSchoolId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('École mise à jour avec succès');
+                    location.reload();
+                } else {
+                    alert('Erreur : ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur lors de la mise à jour : ' + error.message);
+            }
+        }
+
+        function deleteSchool(event, id, name) {
+            event.stopPropagation();
+            deleteSchoolId = id;
+            document.getElementById('deleteMessage').textContent = 
+                `Êtes-vous sûr de vouloir supprimer l'école "${name}" ? Tous les groupes et étudiants associés doivent d'abord être supprimés.`;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            deleteSchoolId = null;
+        }
+
+        async function confirmDelete() {
+            try {
+                const response = await fetch(`/admin/api/schools/${deleteSchoolId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('École supprimée avec succès');
+                    location.reload();
+                } else {
+                    alert('Erreur : ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur lors de la suppression : ' + error.message);
+            }
+
+            closeDeleteModal();
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+
+        // Allow Enter key to save in edit modal
+        document.getElementById('editForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                saveSchool();
+            }
+        });
     </script>
 {% endblock %}

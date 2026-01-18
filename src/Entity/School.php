@@ -116,7 +116,6 @@ class School
     public function removeTeacher(Teacher $teacher): static
     {
         if ($this->teachers->removeElement($teacher)) {
-            // set the owning side to null (unless already changed)
             if ($teacher->getSchool() === $this) {
                 $teacher->setSchool(null);
             }

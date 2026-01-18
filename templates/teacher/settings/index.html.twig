@@ -359,7 +359,9 @@
                         </div>
                         <div class="info-row">
                             <div class="info-label">Ecole</div>
-                            <div class="info-value">{{ teacher.school.name }}</div>
+                            <div class="info-value">
+                                {{ teacher.school ? teacher.school.name : 'Aucune ecole' }}
+                            </div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Classes</div>

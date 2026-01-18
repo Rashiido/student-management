@@ -181,6 +181,13 @@
             min-width: 150px;
         }
 
+        .time-error {
+            color: #dc2626;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
         .presence-list {
             display: grid;
             gap: 1rem;
@@ -446,7 +453,7 @@
 
         {% if selectedGroup %}
             <div class="presence-card">
-                <form method="post" action="{{ path('teacher_attendance_mark', {'group_id': selectedGroup.id}) }}">
+                <form method="post" action="{{ path('teacher_attendance_mark', {'group_id': selectedGroup.id}) }}" id="attendanceForm">
                     <div class="presence-card-body">
                         <div class="presence-toolbar">
                             <div class="presence-toolbar-info">
@@ -463,6 +470,15 @@
                                     <span class="presence-chip-value">{{ today|date('d/m/Y') }}</span>
                                 </span>
                                 <input type="hidden" name="attendance_date" id="attendance_date" value="{{ today|date('Y-m-d') }}">
+
+                                {# Check if subjects variable exists #}
+                                {% set subjects = subjects is defined ? subjects : {
+                                    'math': 'Mathématiques',
+                                    'fr': 'Français',
+                                } %}
+
+                                {% set selectedSubject = selectedSubject is defined ? selectedSubject : 'math' %}
+
                                 <div class="time-input-wrapper">
                                     <label for="subject" class="form-label">Matière</label>
                                     <select name="subject" id="subject" class="form-select">
@@ -496,6 +512,7 @@
                                             {% endif %}
                                         {% endfor %}
                                     </select>
+                                    <div class="time-error" id="endTimeError"></div>
                                 </div>
                             </div>
                         </div>
@@ -525,7 +542,9 @@
 
                             <div class="presence-footer">
                                 <div class="presence-stats">
-                                    Total: {{ students|length }} élève{{ students|length > 1 ? 's' : '' }} | Horaire: {{ selectedStartTime }} - {{ selectedEndTime }}
+                                    Total: {{ students|length }} élève{{ students|length > 1 ? 's' : '' }} |
+                                    Matière: {{ subjects[selectedSubject] }} |
+                                    Horaire: {{ selectedStartTime }} - {{ selectedEndTime }}
                                 </div>
                                 <button type="submit" class="presence-save">
                                     <i class="bi bi-check-circle"></i> Enregistrer
@@ -542,4 +561,91 @@
             </div>
         {% endif %}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startSelect = document.getElementById('start_time');
+            const endSelect = document.getElementById('end_time');
+            const errorElement = document.getElementById('endTimeError');
+            const form = document.getElementById('attendanceForm');
+
+            if (!startSelect || !endSelect) {
+                return;
+            }
+
+            function toMinutes(value) {
+                if (!value) {
+                    return null;
+                }
+
+                const parts = value.split(':');
+                if (parts.length < 2) {
+                    return null;
+                }
+
+                const hours = Number(parts[0]);
+                const minutes = Number(parts[1]);
+                if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+                    return null;
+                }
+
+                return hours * 60 + minutes;
+            }
+
+            function updateEndOptions() {
+                const startMinutes = toMinutes(startSelect.value);
+                Array.from(endSelect.options).forEach(option => {
+                    if (!option.value) {
+                        option.disabled = false;
+                        return;
+                    }
+
+                    const endMinutes = toMinutes(option.value);
+                    option.disabled = startMinutes !== null && endMinutes !== null && endMinutes <= startMinutes;
+                });
+            }
+
+            function validateTimes() {
+                const startMinutes = toMinutes(startSelect.value);
+                const endMinutes = toMinutes(endSelect.value);
+
+                if (startMinutes === null || endMinutes === null) {
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                    }
+                    return true;
+                }
+
+                if (endMinutes <= startMinutes) {
+                    if (errorElement) {
+                        errorElement.textContent = 'Heure de fin invalide. Choisissez une heure apres l\'heure de debut.';
+                    }
+                    return false;
+                }
+
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+                return true;
+            }
+
+            startSelect.addEventListener('change', function () {
+                updateEndOptions();
+                validateTimes();
+            });
+
+            endSelect.addEventListener('change', validateTimes);
+
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!validateTimes()) {
+                        event.preventDefault();
+                    }
+                });
+            }
+
+            updateEndOptions();
+            validateTimes();
+        });
+    </script>
 {% endblock %}

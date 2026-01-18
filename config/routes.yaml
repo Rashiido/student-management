@@ -10,3 +10,17 @@
 controllers:
     resource: ../src/Controller/
     type: attribute
+admin_teacher_index:
+    path: /admin/teacher
+    controller: App\Controller\Admin\TeacherController::index
+    methods: GET
+
+admin_teacher_edit:
+    path: /admin/teacher/{id}/edit
+    controller: App\Controller\Admin\TeacherController::edit
+    methods: [GET, POST]
+
+admin_teacher_delete:
+    path: /admin/teacher/{id}
+    controller: App\Controller\Admin\TeacherController::delete
+    methods: POST

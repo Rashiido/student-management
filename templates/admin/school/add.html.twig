@@ -1,0 +1,355 @@
+{% extends 'admin/base.html.twig' %}
+
+{% form_theme new_form '@EasyAdmin/crud/form_theme.html.twig' %}
+
+{% block title %}{{ 'Ajouter une ecole'|trans }}{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .edit-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-content h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-content p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .edit-form-container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .form-header h2 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-header h2 i {
+            color: #0284C7;
+        }
+
+        .form-content {
+            padding: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: #0EA5E9;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: #ef4444;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            transition: all 0.2s;
+            background: #ffffff;
+            font-family: "Cairo", "Inter", sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            border-top: 2px solid #e2e8f0;
+            background: #f8fafc;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.75rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: "Cairo", "Inter", sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #0EA5E9 0%, #0284C7 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-1px);
+            color: #475569;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #7f1d1d;
+            border-left: 4px solid #ef4444;
+        }
+
+        .form-errors {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .edit-container {
+                padding: 1rem;
+            }
+
+            .header-section {
+                padding: 1.5rem;
+            }
+
+            .header-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .form-content {
+                padding: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="edit-container">
+        <div class="header-section">
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-school"></i> {{ 'Ajouter une ecole'|trans }}
+                </h1>
+                <p>{{ 'Creez une nouvelle ecole pour commencer la gestion.'|trans }}</p>
+            </div>
+        </div>
+
+        <div class="edit-form-container">
+            <div class="form-header">
+                <h2>
+                    <i class="fas fa-building"></i>
+                    {{ 'Informations de l\'ecole'|trans }}
+                </h2>
+            </div>
+
+            {{ form_start(new_form, {'attr': {'class': 'form-content'}}) }}
+
+            {% if new_form.vars.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ 'Merci de corriger les erreurs du formulaire.'|trans }}
+                </div>
+            {% endif %}
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-school"></i> {{ 'Details de l\'ecole'|trans }}
+                </h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form_label(new_form.name, 'Nom de l\'ecole', {'label_attr': {'class': 'form-label required'}}) }}
+                        {{ form_widget(new_form.name, {'attr': {'class': 'form-control', 'placeholder': 'Nom de l\'ecole'}}) }}
+                        {% if new_form.name.vars.errors|length > 0 %}
+                            <div class="form-errors">
+                                {% for error in new_form.name.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form_label(new_form.address, 'Adresse', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(new_form.address, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': 'Adresse complete'}}) }}
+                        {% if new_form.address.vars.errors|length > 0 %}
+                            <div class="form-errors">
+                                {% for error in new_form.address.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form_label(new_form.phone, 'Telephone', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(new_form.phone, {'attr': {'class': 'form-control', 'placeholder': '+212 6 XX XX XX XX'}}) }}
+                        {% if new_form.phone.vars.errors|length > 0 %}
+                            <div class="form-errors">
+                                {% for error in new_form.phone.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ path('admin_school_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> {{ 'Retour a la liste'|trans }}
+                </a>
+                <button type="submit" name="ea[newForm][btn]" value="saveAndReturn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ 'Enregistrer l\'ecole'|trans }}
+                </button>
+            </div>
+
+            {{ form_rest(new_form) }}
+            {{ form_end(new_form, {'render_rest': false}) }}
+        </div>
+    </div>
+{% endblock %}

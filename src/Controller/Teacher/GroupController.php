@@ -47,17 +47,28 @@ class GroupController extends AbstractController
             throw $this->createAccessDeniedException('You must be a teacher to access this page.');
         }
 
+        $school = $teacher->getSchool();
+
         if ($request->isMethod('POST')) {
             $name = trim((string) $request->request->get('name'));
             if ($name === '') {
                 $this->addFlash('error', 'Le nom de la classe est requis.');
-                return $this->render('teacher/group/add.html.twig', ['teacher' => $teacher]);
+                return $this->render('teacher/group/add.html.twig', [
+                    'teacher' => $teacher,
+                ]);
+            }
+
+            if (!$school) {
+                $this->addFlash('error', 'Aucune ecole assignee a votre compte.');
+                return $this->render('teacher/group/add.html.twig', [
+                    'teacher' => $teacher,
+                ]);
             }
 
             $group = new StudentGroup();
             $group->setName($name);
             $group->setTeacher($teacher);
-            $group->setSchool($teacher->getSchool());
+            $group->setSchool($school);
 
             $em->persist($group);
             $em->flush();

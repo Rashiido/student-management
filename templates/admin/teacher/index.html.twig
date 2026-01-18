@@ -303,6 +303,19 @@
             transform: translateY(-1px);
         }
 
+        .btn-danger {
+            background: linear-gradient(to right, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(to right, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+            color: white;
+        }
+
         .badge {
             display: inline-block;
             padding: 0.4rem 0.9rem;
@@ -311,6 +324,34 @@
             font-weight: 600;
             background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
             color: #065f46;
+        }
+
+        .delete-form {
+            display: inline;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.65rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(to right, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            text-decoration: none;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+            color: white;
         }
 
         .empty-state {
@@ -362,6 +403,10 @@
             .teachers-grid {
                 grid-template-columns: 1fr;
             }
+
+            .teacher-footer {
+                flex-wrap: wrap;
+            }
         }
     </style>
 
@@ -389,7 +434,7 @@
                 <div class="stat-icon">
                     <i class="fas fa-chalkboard-teacher"></i>
                 </div>
-                <div class="stat-number">{{ entities|length }}</div>
+                <div class="stat-number">{{ teachers|length }}</div>
                 <div class="stat-label">Total Enseignants</div>
             </div>
             <div class="stat-box">
@@ -397,13 +442,13 @@
                     <i class="fas fa-school"></i>
                 </div>
                 <div class="stat-number">
-                    {% set schools = [] %}
-                    {% for entity in entities %}
-                        {% if entity.instance.school and entity.instance.school.id not in schools %}
-                            {% set schools = schools|merge([entity.instance.school.id]) %}
+                    {% set schoolIds = [] %}
+                    {% for teacher in teachers %}
+                        {% if teacher.school and teacher.school.id not in schoolIds %}
+                            {% set schoolIds = schoolIds|merge([teacher.school.id]) %}
                         {% endif %}
                     {% endfor %}
-                    {{ schools|length }}
+                    {{ schoolIds|length }}
                 </div>
                 <div class="stat-label">Écoles</div>
             </div>
@@ -413,8 +458,8 @@
                 </div>
                 <div class="stat-number">
                     {% set totalGroups = 0 %}
-                    {% for entity in entities %}
-                        {% set totalGroups = totalGroups + entity.instance.studentGroups|length %}
+                    {% for teacher in teachers %}
+                        {% set totalGroups = totalGroups + teacher.studentGroups|length %}
                     {% endfor %}
                     {{ totalGroups }}
                 </div>
@@ -423,15 +468,14 @@
         </div>
 
         <!-- Teachers Grid -->
-        {% if entities is empty %}
+        {% if teachers is empty %}
             <div class="empty-state">
                 <i class="fas fa-chalkboard-teacher"></i>
                 <p>Aucun enseignant enregistré</p>
             </div>
         {% else %}
             <div class="teachers-grid">
-                {% for entity in entities %}
-                    {% set teacher = entity.instance %}
+                {% for teacher in teachers %}
                     <div class="teacher-card">
                         <div class="teacher-header">
                             <div class="teacher-avatar">
@@ -442,7 +486,7 @@
                             </div>
                             <div class="teacher-school">
                                 <i class="fas fa-school"></i>
-                                {{ teacher.school ? teacher.school.name : 'Aucune école' }}
+                                {{ teacher.school ? teacher.school.name : 'Aucune ecole' }}
                             </div>
                         </div>
 
@@ -472,20 +516,18 @@
                         </div>
 
                         <div class="teacher-footer">
-                            <a href="{{ ea_url()
-                                .setController('App\\Controller\\Admin\\TeacherCrudController')
-                                .setAction('detail')
-                                .setEntityId(teacher.id) }}"
+                            <a href="{{ path('admin_teacher_edit', {'id': teacher.id}) }}"
                                class="btn btn-primary">
-                                <i class="fas fa-eye"></i> Voir
-                            </a>
-                            <a href="{{ ea_url()
-                                .setController('App\\Controller\\Admin\\TeacherCrudController')
-                                .setAction('edit')
-                                .setEntityId(teacher.id) }}"
-                               class="btn btn-secondary">
                                 <i class="fas fa-edit"></i> Modifier
                             </a>
+                            <form method="post" action="{{ path('admin_teacher_delete', {'id': teacher.id}) }}"
+                                  class="delete-form"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet enseignant ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ teacher.id) }}">
+                                <button type="submit" class="delete-btn">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
                         </div>
                     </div>
                 {% endfor %}

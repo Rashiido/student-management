@@ -33,7 +33,8 @@ class SchoolCrudController extends AbstractCrudController
             ->setPageTitle('new', 'Créer une école')
             ->setPageTitle('edit', 'Modifier l\'école')
             ->setDefaultSort(['name' => 'ASC'])
-            ->overrideTemplate('crud/index', 'admin/school/index.html.twig');
+            ->overrideTemplate('crud/index', 'admin/school/index.html.twig')
+            ->overrideTemplate('crud/new', 'admin/school/add.html.twig');
     }
 
     public function configureActions(Actions $actions): Actions

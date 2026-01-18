@@ -67,4 +67,69 @@ class AttendanceRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getTeacherHoursSummary(?\DateTimeInterface $startDate, ?\DateTimeInterface $endDate): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->select(
+                'IDENTITY(sg.teacher) AS teacherId',
+                'a.date AS date',
+                'a.startTime AS startTime',
+                'a.endTime AS endTime',
+                'sch.startTime AS scheduleStart',
+                'sch.endTime AS scheduleEnd',
+                'sg.id AS groupId'
+            )
+            ->join('a.studentGroup', 'sg')
+            ->leftJoin('a.schedule', 'sch')
+            ->andWhere('(a.startTime IS NOT NULL OR sch.startTime IS NOT NULL)')
+            ->andWhere('(a.endTime IS NOT NULL OR sch.endTime IS NOT NULL)');
+
+        if ($startDate) {
+            $qb->andWhere('a.date >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $qb->andWhere('a.date <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $rows = $qb->getQuery()->getArrayResult();
+        $totals = [];
+
+        foreach ($rows as $row) {
+            $teacherId = (int) $row['teacherId'];
+            $startValue = $row['startTime'] ?? $row['scheduleStart'];
+            $endValue = $row['endTime'] ?? $row['scheduleEnd'];
+
+            $startTime = $this->normalizeTimeValue($startValue);
+            $endTime = $this->normalizeTimeValue($endValue);
+
+            if (!$startTime || !$endTime || $endTime <= $startTime) {
+                continue;
+            }
+
+            $duration = ($endTime->getTimestamp() - $startTime->getTimestamp()) / 3600;
+            if ($duration <= 0) {
+                continue;
+            }
+
+            $totals[$teacherId] = ($totals[$teacherId] ?? 0.0) + $duration;
+        }
+
+        return $totals;
+    }
+
+    private function normalizeTimeValue(mixed $value): ?\DateTimeInterface
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value;
+        }
+
+        $time = \DateTime::createFromFormat('H:i:s', (string) $value)
+            ?: \DateTime::createFromFormat('H:i', (string) $value);
+
+        return $time ?: null;
+    }
 }

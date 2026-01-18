@@ -1,0 +1,528 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Heures enseignants{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .hours-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 3rem;
+        }
+
+        .hero-header {
+            background: linear-gradient(135deg, #0284C7 0%, #f97316 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -10%;
+            width: 360px;
+            height: 360px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            color: #ffffff;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 0 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .hero-subtitle {
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .total-chip {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 0.85rem 1.5rem;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .total-chip + .total-chip {
+            margin-left: 0.75rem;
+        }
+
+        .filters-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: #06b6d4;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+        }
+
+        .filter-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.7rem 1.4rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .table-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+        }
+
+        .table-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .table-title {
+            margin: 0;
+            font-weight: 800;
+            color: #1e293b;
+            font-size: 1.1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            padding: 0.9rem 1.5rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1f2937;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .hours-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            background: #e0f2fe;
+            color: #0284c7;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .rate-total {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .pay-toggle {
+            width: 18px;
+            height: 18px;
+            accent-color: #0EA5E9;
+        }
+
+        .row-unpaid {
+            opacity: 0.6;
+        }
+
+        .empty-state {
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tbody td {
+                display: flex;
+                justify-content: space-between;
+                gap: 1rem;
+            }
+
+            tbody td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: #64748b;
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                letter-spacing: 0.05em;
+            }
+        }
+    </style>
+
+    <div class="hours-wrapper">
+        <div class="hero-header">
+            <div class="hero-content">
+                <div>
+                    <h1 class="hero-title">
+                        <i class="fas fa-clock"></i>
+                        Heures enseignants
+                    </h1>
+                    <p class="hero-subtitle">Consultez le total des heures declarees par enseignant</p>
+                </div>
+                <div class="total-chip">
+                    Total general: {{ totalHours|number_format(2, '.', ' ') }} h
+                </div>
+                <div class="total-chip" id="total-mad-chip">
+                    Total a payer: 0.00 MAD
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-card">
+            <form method="get" class="filters-grid">
+                <div>
+                    <label class="form-label" for="start_date">Date debut</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ startDate }}">
+                </div>
+                <div>
+                    <label class="form-label" for="end_date">Date fin</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ endDate }}">
+                </div>
+                <div>
+                    <label class="form-label" for="hour_rate">Tarif horaire (MAD)</label>
+                    <input type="number" id="hour_rate" name="rate" class="form-control" min="0" step="1" value="{{ app.request.query.get('rate') }}">
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i>
+                        Filtrer
+                    </button>
+                    <a href="{{ path('admin_teacher_hours') }}" class="btn btn-secondary">
+                        <i class="fas fa-layer-group"></i>
+                        Total
+                    </a>
+                    <button type="button" class="btn btn-secondary" id="export-pdf">
+                        <i class="fas fa-file-pdf"></i>
+                        Export PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Table des heures</h3>
+            </div>
+            {% if rows is empty %}
+                <div class="empty-state">
+                    <i class="fas fa-clock"></i>
+                    <p>Aucune donnee disponible.</p>
+                </div>
+            {% else %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Enseignant</th>
+                            <th>Ecole</th>
+                            <th>Telephone</th>
+                            <th>Total heures</th>
+                            <th>Paye</th>
+                            <th>Total (MAD)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            {% set teacher = row.teacher %}
+                            <tr data-hours="{{ row.hours|number_format(2, '.', '') }}">
+                                <td data-label="Enseignant">{{ teacher.firstName }} {{ teacher.lastName }}</td>
+                                <td data-label="Ecole">{{ teacher.school ? teacher.school.name : 'Non assigne' }}</td>
+                                <td data-label="Telephone">{{ teacher.phone ?: '--' }}</td>
+                                <td data-label="Total heures">
+                                    <span class="hours-pill">
+                                        <i class="fas fa-stopwatch"></i>
+                                        {{ row.hours|number_format(2, '.', ' ') }} h
+                                    </span>
+                                </td>
+                                <td data-label="Paye">
+                                    <input type="checkbox" class="pay-toggle" checked>
+                                </td>
+                                <td data-label="Total (MAD)">
+                                    <div class="rate-total">0.00 MAD</div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const rateInput = document.getElementById('hour_rate');
+            const rows = document.querySelectorAll('tbody tr');
+            const totalChip = document.getElementById('total-mad-chip');
+            const exportBtn = document.getElementById('export-pdf');
+
+            function formatMoney(value) {
+                return value.toFixed(2);
+            }
+
+            function getRateValue() {
+                const value = Number.parseFloat(rateInput?.value || '0');
+                return Number.isFinite(value) ? value : 0;
+            }
+
+            function updateTotals() {
+                const rate = getRateValue();
+                let grandTotal = 0;
+
+                rows.forEach(function (row) {
+                    const hours = Number.parseFloat(row.dataset.hours || '0') || 0;
+                    const toggle = row.querySelector('.pay-toggle');
+                    const totalEl = row.querySelector('.rate-total');
+                    const isPaid = toggle?.checked ?? true;
+                    const total = isPaid ? hours * rate : 0;
+
+                    if (totalEl) {
+                        totalEl.textContent = formatMoney(total) + ' MAD';
+                    }
+
+                    if (isPaid) {
+                        grandTotal += total;
+                        row.classList.remove('row-unpaid');
+                    } else {
+                        row.classList.add('row-unpaid');
+                    }
+                });
+
+                if (totalChip) {
+                    totalChip.textContent = 'Total a payer: ' + formatMoney(grandTotal) + ' MAD';
+                }
+            }
+
+            function buildExportTable() {
+                const rate = getRateValue();
+                const startDate = document.getElementById('start_date')?.value || '';
+                const endDate = document.getElementById('end_date')?.value || '';
+                let rowsHtml = '';
+                let totalMad = 0;
+
+                rows.forEach(function (row) {
+                    const toggle = row.querySelector('.pay-toggle');
+                    if (!toggle?.checked) {
+                        return;
+                    }
+
+                    const cells = row.querySelectorAll('td');
+                    const teacher = cells[0]?.textContent?.trim() || '';
+                    const school = cells[1]?.textContent?.trim() || '';
+                    const phone = cells[2]?.textContent?.trim() || '';
+                    const hours = Number.parseFloat(row.dataset.hours || '0') || 0;
+                    const total = hours * rate;
+                    totalMad += total;
+
+                    rowsHtml += `
+                        <tr>
+                            <td>${teacher}</td>
+                            <td>${school}</td>
+                            <td>${phone}</td>
+                            <td>${hours.toFixed(2)} h</td>
+                            <td>${total.toFixed(2)} MAD</td>
+                        </tr>
+                    `;
+                });
+
+                const dateLabel = startDate || endDate
+                    ? `Du ${startDate || '...'} au ${endDate || '...'}`
+                    : 'Toutes les dates';
+
+                return `
+                    <h2>Heures enseignants</h2>
+                    <p>${dateLabel}</p>
+                    <p>Tarif horaire: ${rate.toFixed(2)} MAD</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Enseignant</th>
+                                <th>Ecole</th>
+                                <th>Telephone</th>
+                                <th>Total heures</th>
+                                <th>Total (MAD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml || '<tr><td colspan="5">Aucune donnee</td></tr>'}
+                        </tbody>
+                    </table>
+                    <p><strong>Total a payer:</strong> ${totalMad.toFixed(2)} MAD</p>
+                `;
+            }
+
+            function exportPdf() {
+                const content = buildExportTable();
+                const printWindow = window.open('', '_blank', 'width=900,height=700');
+                if (!printWindow) {
+                    return;
+                }
+
+                const logoUrl = '{{ asset('image/logo.png') }}';
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Heures enseignants</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 24px; }
+                            .pdf-header { display: flex; justify-content: space-between; align-items: center; }
+                            .pdf-logo { height: 48px; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+                            th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+                            th { background: #f8fafc; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="pdf-header">
+                            <div></div>
+                            <img src="${logoUrl}" class="pdf-logo" alt="Fondation Logo">
+                        </div>
+                        ${content}
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+            }
+
+            if (rateInput) {
+                rateInput.addEventListener('input', updateTotals);
+            }
+
+            rows.forEach(function (row) {
+                const toggle = row.querySelector('.pay-toggle');
+                if (toggle) {
+                    toggle.addEventListener('change', updateTotals);
+                }
+            });
+
+            if (exportBtn) {
+                exportBtn.addEventListener('click', exportPdf);
+            }
+
+            updateTotals();
+        });
+    </script>
+{% endblock %}

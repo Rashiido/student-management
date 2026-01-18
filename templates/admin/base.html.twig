@@ -46,7 +46,7 @@
 </head>
 <body>
 
-<div class="flex h-screen bg-gray-50">
+<div class="flex min-h-screen bg-gray-50">
     <!-- Sidebar -->
     <aside id="sidebar"
            class="sidebar-collapsed bg-white shadow-lg flex flex-col border-r border-gray-100"
@@ -108,14 +108,28 @@
 
                 <a href="{{ path('admin_teacher_index') }}"
                    class="nav-link w-full flex items-center justify-center px-3 py-3.5 rounded-xl text-sm font-medium transition-all duration-200
-                          {% if app.request.get('_route') starts with 'admin_teacher' %}
+                          {% if app.request.get('_route') starts with 'admin_teacher' and app.request.get('_route') != 'admin_teacher_hours' %}
                               bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
                           {% else %}
                               text-gray-700 hover:bg-sky-50 hover:text-sky-700
                           {% endif %}">
                     <i class="fas fa-chalkboard-teacher text-lg w-5 flex-shrink-0"></i>
                     <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Enseignants</span>
-                    {% if app.request.get('_route') starts with 'admin_teacher' %}
+                    {% if app.request.get('_route') starts with 'admin_teacher' and app.request.get('_route') != 'admin_teacher_hours' %}
+                        <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
+                    {% endif %}
+                </a>
+
+                <a href="{{ path('admin_teacher_hours') }}"
+                   class="nav-link w-full flex items-center justify-center px-3 py-3.5 rounded-xl text-sm font-medium transition-all duration-200
+                          {% if app.request.get('_route') starts with 'admin_teacher_hours' %}
+                              bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30
+                          {% else %}
+                              text-gray-700 hover:bg-sky-50 hover:text-sky-700
+                          {% endif %}">
+                    <i class="fas fa-clock text-lg w-5 flex-shrink-0"></i>
+                    <span class="nav-text ml-3 whitespace-nowrap" style="opacity: 0; display: none;">Heures enseignants</span>
+                    {% if app.request.get('_route') starts with 'admin_teacher_hours' %}
                         <div class="nav-dot ml-auto w-1.5 h-1.5 bg-white rounded-full" style="opacity: 0; display: none;"></div>
                     {% endif %}
                 </a>
@@ -163,7 +177,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-auto">
+    <main class="flex-1">
         {% block body %}{% endblock %}
     </main>
 </div>
